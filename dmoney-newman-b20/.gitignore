@@ -1,0 +1,20 @@
+# Dependencies - never commit node_modules
+node_modules/
+
+# Newman HTML report output (regenerated on each run)
+Reports/report.html
+
+# Environment / secrets - never commit credentials or local config
+.env
+.env.local
+*.pem
+*.key
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Lock file - not needed for a reusable test harness
+package-lock.json
