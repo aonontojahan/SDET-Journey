@@ -62,6 +62,3 @@ dmoney-newman-b20/
 ## Documentation
 https://documenter.getpostman.com/view/1844288/2sBYHVvz2r
 
-## Attachment
-<img width="957" height="896" alt="image" src="https://github.com/user-attachments/assets/719986a4-a5b9-44b2-a37b-6805506a6f64" />
-<img width="957" height="613" alt="image" src="https://github.com/user-attachments/assets/0c40d03f-6084-4666-898b-91c8fca10a64" />
