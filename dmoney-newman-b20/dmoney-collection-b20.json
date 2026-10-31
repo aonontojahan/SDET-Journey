@@ -1,0 +1,519 @@
+{
+  "info": {
+    "_postman_id": "a16c826c-7ed6-4730-abca-3321b88779b6",
+    "name": "dmoney-batch-20",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43453967",
+    "_collection_link": "https://go.postman.co/collection/43453967-a16c826c-7ed6-4730-abca-3321b88779b6?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Admin Login",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let jsonData = pm.response.json();\nlet adminAccessToken = jsonData.token;\n\npm.collectionVariables.set(\"adminAccessToken\", adminAccessToken);   \n\npm.test(\"Verify if admin can login succesfully\", ()=> {\n    pm.expect(jsonData.message).to.eql(\"Login successful\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"admin@dmoney.com\",\r\n  \"password\": \"1234\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Login with Wrong Creds",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let jsonData = pm.response.json();\n\npm.test(\"Verify that admin can not login with wrong credentials\", ()=> {\n    pm.expect(jsonData.message).to.eql(\"Password incorrect\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"admin@dmoney.com\",\r\n  \"password\": \"1243\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User List",
+      "item": [
+        {
+          "name": "User List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is less than 3000ms\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(3000);\n});\n\npm.test(\"Response has correct Content-Type\", function () {\n    pm.response.to.have.header(\"Content-Type\");\n    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\n});\n\npm.test(\"Response body has required fields\", function () {\n    const jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property(\"message\");\n    pm.expect(jsonData).to.have.property(\"total\");\n    pm.expect(jsonData).to.have.property(\"count\");\n    pm.expect(jsonData).to.have.property(\"users\");\n});\n\npm.test(\"Message is 'User list'\", function () {\n    const jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"User list\");\n});\n\npm.test(\"Users is an array\", function () {\n    const jsonData = pm.response.json();\n    pm.expect(jsonData.users).to.be.an(\"array\");\n});\n\npm.test(\"Users array is not empty\", function () {\n    const jsonData = pm.response.json();\n    pm.expect(jsonData.users.length).to.be.above(0);\n});\n\npm.test(\"Count matches users array length\", function () {\n    const jsonData = pm.response.json();\n    pm.expect(jsonData.users.length).to.eql(jsonData.count);\n});\n\npm.test(\"Each user has required fields\", function () {\n    const jsonData = pm.response.json();\n    jsonData.users.forEach(function(user) {\n        pm.expect(user).to.have.property(\"id\");\n        pm.expect(user).to.have.property(\"name\");\n        pm.expect(user).to.have.property(\"email\");\n        pm.expect(user).to.have.property(\"role\");\n        pm.expect(user).to.have.property(\"status\");\n        pm.expect(user).to.have.property(\"balance\");\n    });\n});\n\npm.test(\"Total is greater than or equal to count\", function () {\n    const jsonData = pm.response.json();\n    pm.expect(jsonData.total).to.be.at.least(jsonData.count);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "list"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Create User",
+      "item": [
+        {
+          "name": "Create New User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let prefix = \"0130\";\r\nlet min = 1000000;\r\nlet max = 9999999;\r\n\r\nlet randomNumber = Math.round(Math.random() * (max-min) + min);\r\nlet phoneNumber = prefix + randomNumber;\r\n\r\nconsole.log(phoneNumber);\r\npm.collectionVariables.set(\"customerPhoneNumber\", phoneNumber);\r\n\r\nlet gmailId = Math.round(Math.random() * (1000,9999) + 1000);\r\nconsole.log(gmailId)\r\npm.collectionVariables.set(\"customerGmailId\", gmailId);\r\n"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let jsonData = pm.response.json();\r\nlet customerId = jsonData.user.id;\r\npm.collectionVariables.set(\"customerId\", customerId);\r\n\r\npm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "ROADTOSDET"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{$randomFullName}}\",\r\n  \"email\": \"aonontojahan+{{customerGmailId}}@gmail.com\",\r\n  \"password\": \"1234\",\r\n  \"phone_number\": \"{{customerPhoneNumber}}\",\r\n  \"nid\": \"9876543210\",\r\n  \"role\": \"Customer\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User with Existing User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let prefix = \"0130\";\r\nlet min = 1000000;\r\nlet max = 9999999;\r\n\r\nlet randomNumber = Math.round(Math.random() * (max-min) + min);\r\nlet phoneNumber = prefix + randomNumber;\r\n\r\nconsole.log(phoneNumber);\r\npm.collectionVariables.set(\"customerPhoneNumber\", phoneNumber);\r\n\r\nlet gmailId = Math.round(Math.random() * (1000,9999) + 1000);\r\nconsole.log(gmailId)\r\npm.collectionVariables.set(\"customerGmailId\", gmailId);\r\n"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"User already exists\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"User already exists\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "ROADTOSDET"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{$randomFullName}}\",\r\n  \"email\": \"salmansrabon+customer1@gmail.com\",\r\n  \"password\": \"1234\",\r\n  \"phone_number\": \"{{customerPhoneNumber}}\",\r\n  \"nid\": \"9876543210\",\r\n  \"role\": \"Customer\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search User",
+      "item": [
+        {
+          "name": "Verify User Search with Wrong ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify if the user if found by id\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"User found\");\n});  "
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/search/id/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "search",
+                "id",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify that the user is not found by id\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"User not found\");\n});  "
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/search/id/1000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "search",
+                "id",
+                "1000"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Activation",
+      "item": [
+        {
+          "name": "Suspend User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify if the admin can suspend an user\", function () {\n    if (pm.response.code === 404) {\n        pm.expect(pm.response.json().message).to.eql(\"User not found\");\n    } else {\n        var jsonData = pm.response.json();\n        pm.expect(jsonData.user.status).to.eql(\"suspended\");\n    }\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\" : \"suspended\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/update/{{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "update",
+                "{{customerId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify if the admin can active an user\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.user.status).to.eql(\"active\");\r\n});  "
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\" : \"active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/update/{{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "update",
+                "{{customerId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Delete User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Verify if the user is deleted\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"User deleted\");\r\n});  "
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{adminAccessToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/delete/{{customerId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "delete",
+            "{{customerId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "adminAccessToken",
+      "secret": true
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "partnerKey",
+      "value": "ROADTOSDET"
+    },
+    {
+      "key": "customerPhoneNumber",
+      "value": "01302324440"
+    },
+    {
+      "key": "customerGmailId",
+      "value": 9574
+    },
+    {
+      "key": "customerId",
+      "value": 46
+    }
+  ]
+}
