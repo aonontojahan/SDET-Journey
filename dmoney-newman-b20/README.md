@@ -1,5 +1,3 @@
-# dmoney-newman-b20
-
 ## What is dMoney?
 
 dMoney is a mobile financial service (MFS) application. Users can send money, cash out, and pay bills. Admins manage users, such as create, search, suspend, activate, and delete. This project tests the dMoney REST API with an automated Postman collection.
