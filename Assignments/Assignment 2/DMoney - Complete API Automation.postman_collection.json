@@ -1,0 +1,1686 @@
+{
+  "info": {
+    "_postman_id": "92b5e900-0a12-4a20-8707-4f1111c56e1c",
+    "name": "DMoney - Complete API Automation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43453967",
+    "_collection_link": "https://go.postman.co/collection/43453967-92b5e900-0a12-4a20-8707-4f1111c56e1c?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "TC01 - Admin Login Wrong Password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"N01 - Invalid admin login is rejected\", function () {\r\n    pm.expect(pm.response.code).to.eql(401);\r\n});\r\n\r\npm.test(\"N01 - Login error message is returned\", function () {\r\n    pm.expect(response.message).to.be.a(\"string\");\r\n    pm.expect(response.message).to.not.be.empty;\r\n});\r\n\r\npm.test(\"N01 - No JWT token is generated\", function () {\r\n    pm.expect(response.token).to.be.undefined;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"admin@dmoney.com\",\r\n  \"password\": \"wrongpassword\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC02 - Admin Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"Admin login successful\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n    pm.expect(response.role).to.eql(\"Admin\");\r\n});\r\n\r\nif (\r\n    pm.response.code === 200 &&\r\n    response.token &&\r\n    response.role === \"Admin\"\r\n) {\r\n    pm.collectionVariables.set(\"adminToken\", response.token);\r\n\r\n    console.log(\"Admin token saved.\");\r\n    console.log(\"Token length:\", response.token.length);\r\n    console.log(\"Token expiry:\", response.expiresIn);\r\n}\r\n\r\npm.test(\"Admin token saved in collection\", function () {\r\n    pm.expect(\r\n        pm.collectionVariables.get(\"adminToken\")\r\n    ).to.be.a(\"string\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"admin@dmoney.com\",\r\n    \"password\": \"1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC03 Create Customer with Invalid Phone Number",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"N02 - Invalid phone number is rejected\", function () {\r\n    pm.expect(pm.response.code).to.eql(400);\r\n});\r\n\r\npm.test(\"N02 - Customer is not created\", function () {\r\n    pm.expect(response.user).to.be.undefined;\r\n});"
+            ]
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const randomPhone = Math.floor(\r\n    1000000 + Math.random() * 9000000\r\n);\r\n\r\nconst uniqueId = Date.now();\r\n\r\nconst randomNid = Math.floor(\r\n    1000000000 + Math.random() * 9000000000\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer1Name\",\r\n    \"Customer One\"\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer1Phone\",\r\n    \"0130\" + randomPhone\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer1Email\",\r\n    \"aononto+\" + uniqueId + \"@gmail.com\"\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer1Nid\",\r\n    String(randomNid)\r\n);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Negative Test Customer\",\r\n  \"email\": \"negative.customer.{{$timestamp}}@gmail.com\",\r\n  \"password\": \"1234\",\r\n  \"phone_number\": \"12345\",\r\n  \"nid\": \"9876543210\",\r\n  \"role\": \"Customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/create",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC04 - Create Customer 1",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let response = pm.response.json();\r\n\r\npm.test(\"TC02 - Customer creation returns HTTP 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC02 - Customer created successfully\", function () {\r\n    pm.expect(response.message).to.eql(\"User created\");\r\n});\r\n\r\npm.test(\"TC02 - Customer ID is generated\", function () {\r\n    pm.expect(response.user.id).to.exist;\r\n});\r\n\r\npm.test(\"TC02 - Customer role is correct\", function () {\r\n    pm.expect(response.user.role).to.eql(\"Customer\");\r\n});\r\n\r\nif (\r\n    pm.response.code === 201 &&\r\n    response.user &&\r\n    response.user.id\r\n) {\r\n    pm.collectionVariables.set(\r\n        \"customer1Id\",\r\n        response.user.id\r\n    );\r\n\r\n    console.log(\"Customer 1 ID saved.\");\r\n}"
+            ]
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const randomPhone = Math.floor(\r\n    1000000 + Math.random() * 9000000\r\n);\r\n\r\nconst uniqueId = Date.now();\r\n\r\nconst randomNid = Math.floor(\r\n    1000000000 + Math.random() * 9000000000\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer1Name\",\r\n    \"Customer One\"\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer1Phone\",\r\n    \"0130\" + randomPhone\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer1Email\",\r\n    \"aononto+\" + uniqueId + \"@gmail.com\"\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer1Nid\",\r\n    String(randomNid)\r\n);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"{{customer1Name}}\",\r\n    \"email\": \"{{customer1Email}}\",\r\n    \"password\": \"1234\",\r\n    \"phone_number\": \"{{customer1Phone}}\",\r\n    \"nid\": \"{{customer1Nid}}\",\r\n    \"role\": \"Customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/create",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC05 Activate user with invalid ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\n\npm.test(\"N03 - Invalid user ID is rejected\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\n});\n\npm.test(\"N03 - User is not activated\", function () {\n    pm.expect(response.user).to.be.undefined;\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\": \"active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/updat/94754785",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "updat",
+            "94754785"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC06 - Activate Customer 1",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let response = pm.response.json();\n\npm.test(\"TC03 - Customer activation returns HTTP 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"TC03 - Activation success message is correct\", function () {\n    pm.expect(response.message).to.eql(\"User updated successfully\");\n});\n\npm.test(\"TC03 - Customer account is active\", function () {\n    pm.expect(response.user.status).to.eql(\"active\");\n});\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\": \"active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/update/{{customer1Id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "update",
+            "{{customer1Id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC07 - Create Customer 2",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const randomPhone = Math.floor(\r\n    1000000 + Math.random() * 9000000\r\n);\r\n\r\nconst uniqueId = Date.now() + Math.floor(Math.random() * 1000);\r\n\r\nconst randomNid = Math.floor(\r\n    1000000000 + Math.random() * 9000000000\r\n);\r\n\r\npm.collectionVariables.set(\"customer2Name\", \"Customer Two\");\r\n\r\npm.collectionVariables.set(\r\n    \"customer2Phone\",\r\n    \"0131\" + randomPhone\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer2Email\",\r\n    \"aononto+\" + uniqueId + \"@gmail.com\"\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"customer2Nid\",\r\n    String(randomNid)\r\n);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC04 - Customer 2 creation returns HTTP 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC04 - Customer 2 created successfully\", function () {\r\n    pm.expect(response.message).to.eql(\"User created\");\r\n});\r\n\r\npm.test(\"TC04 - Customer 2 ID generated\", function () {\r\n    pm.expect(response.user.id).to.exist;\r\n});\r\n\r\npm.test(\"TC04 - Customer 2 role is correct\", function () {\r\n    pm.expect(response.user.role).to.eql(\"Customer\");\r\n});\r\n\r\nif (\r\n    pm.response.code === 201 &&\r\n    response.user &&\r\n    response.user.id\r\n) {\r\n    pm.collectionVariables.set(\"customer2Id\", response.user.id);\r\n    console.log(\"Customer 2 ID saved:\", response.user.id);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"{{customer2Name}}\",\r\n    \"email\": \"{{customer2Email}}\",\r\n    \"password\": \"1234\",\r\n    \"phone_number\": \"{{customer2Phone}}\",\r\n    \"nid\": \"{{customer2Nid}}\",\r\n    \"role\": \"Customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/create",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC08 - Activate Customer 2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC05 - Customer 2 activation returns HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC05 - Activation successful\", function () {\r\n    pm.expect(response.message).to.eql(\"User updated successfully\");\r\n});\r\n\r\npm.test(\"TC05 - Customer 2 status is active\", function () {\r\n    pm.expect(response.user.status).to.eql(\"active\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\": \"active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/update/{{customer2Id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "update",
+            "{{customer2Id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC09 - Create Agent",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const randomPhone = Math.floor(\r\n    1000000 + Math.random() * 9000000\r\n);\r\n\r\nconst uniqueId = Date.now() + Math.floor(Math.random() * 1000);\r\n\r\nconst randomNid = Math.floor(\r\n    1000000000 + Math.random() * 9000000000\r\n);\r\n\r\npm.collectionVariables.set(\"agentName\", \"Test Agent\");\r\n\r\npm.collectionVariables.set(\r\n    \"agentPhone\",\r\n    \"0132\" + randomPhone\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"agentEmail\",\r\n    \"aononto.agent+\" + uniqueId + \"@gmail.com\"\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"agentNid\",\r\n    String(randomNid)\r\n);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC06 - Agent creation returns HTTP 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC06 - Agent created successfully\", function () {\r\n    pm.expect(response.message).to.eql(\"User created\");\r\n});\r\n\r\npm.test(\"TC06 - Agent ID generated\", function () {\r\n    pm.expect(response.user.id).to.exist;\r\n});\r\n\r\npm.test(\"TC06 - Agent role is correct\", function () {\r\n    pm.expect(response.user.role).to.eql(\"Agent\");\r\n});\r\n\r\nif (\r\n    pm.response.code === 201 &&\r\n    response.user &&\r\n    response.user.id\r\n) {\r\n    pm.collectionVariables.set(\"agentId\", response.user.id);\r\n    console.log(\"Agent ID saved:\", response.user.id);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"{{agentName}}\",\r\n    \"email\": \"{{agentEmail}}\",\r\n    \"password\": \"1234\",\r\n    \"phone_number\": \"{{agentPhone}}\",\r\n    \"nid\": \"{{agentNid}}\",\r\n    \"role\": \"Agent\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/create",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC10 - Activate Agent",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC07 - Agent activation returns HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC07 - Agent activation successful\", function () {\r\n    pm.expect(response.message).to.eql(\"User updated successfully\");\r\n});\r\n\r\npm.test(\"TC07 - Agent status is active\", function () {\r\n    pm.expect(response.user.status).to.eql(\"active\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\": \"active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/update/{{agentId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "update",
+            "{{agentId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC11 - Create Merchant",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const randomPhone = Math.floor(\r\n    1000000 + Math.random() * 9000000\r\n);\r\n\r\nconst uniqueId = Date.now() + Math.floor(Math.random() * 1000);\r\n\r\nconst randomNid = Math.floor(\r\n    1000000000 + Math.random() * 9000000000\r\n);\r\n\r\npm.collectionVariables.set(\"merchantName\", \"Test Merchant\");\r\n\r\npm.collectionVariables.set(\r\n    \"merchantPhone\",\r\n    \"0133\" + randomPhone\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"merchantEmail\",\r\n    \"aononto.merchant+\" + uniqueId + \"@gmail.com\"\r\n);\r\n\r\npm.collectionVariables.set(\r\n    \"merchantNid\",\r\n    String(randomNid)\r\n);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC08 - Merchant creation returns HTTP 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC08 - Merchant created successfully\", function () {\r\n    pm.expect(response.message).to.eql(\"User created\");\r\n});\r\n\r\npm.test(\"TC08 - Merchant ID generated\", function () {\r\n    pm.expect(response.user.id).to.exist;\r\n});\r\n\r\npm.test(\"TC08 - Merchant role is correct\", function () {\r\n    pm.expect(response.user.role).to.eql(\"Merchant\");\r\n});\r\n\r\nif (\r\n    pm.response.code === 201 &&\r\n    response.user &&\r\n    response.user.id\r\n) {\r\n    pm.collectionVariables.set(\"merchantId\", response.user.id);\r\n    console.log(\"Merchant ID saved:\", response.user.id);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"{{merchantName}}\",\r\n    \"email\": \"{{merchantEmail}}\",\r\n    \"password\": \"1234\",\r\n    \"phone_number\": \"{{merchantPhone}}\",\r\n    \"nid\": \"{{merchantNid}}\",\r\n    \"role\": \"Merchant\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/create",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC12 - Activate Merchant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC09 - Merchant activation returns HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC09 - Merchant activation successful\", function () {\r\n    pm.expect(response.message).to.eql(\"User updated successfully\");\r\n});\r\n\r\npm.test(\"TC09 - Merchant status is active\", function () {\r\n    pm.expect(response.user.status).to.eql(\"active\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\": \"active\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/update/{{merchantId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "update",
+            "{{merchantId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC13 - SYSTEM Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\nif (pm.response.code === 200 && response.token) {\r\n    pm.collectionVariables.set(\"systemToken\", response.token);\r\n}\r\n\r\nconst savedToken = pm.collectionVariables.get(\"systemToken\");\r\n\r\npm.test(\"SYSTEM token saved successfully\", function () {\r\n    pm.expect(savedToken).to.eql(response.token);\r\n});\r\n\r\nconsole.log(\"Token saved:\", !!savedToken);\r\nconsole.log(\"Token length:\", savedToken ? savedToken.length : 0);\r\nconsole.log(\"Expiry:\", response.expiresIn);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"system@dmoney.com\",\r\n    \"password\": \"1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC14 - SYSTEM Deposit to Agent",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC12 - SYSTEM deposit returns HTTP 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC12 - SYSTEM deposit successful\", function () {\r\n    pm.expect(response.message).to.eql(\r\n        \"SYSTEM deposit to Agent successful\"\r\n    );\r\n});\r\n\r\npm.test(\"TC12 - Transaction ID generated\", function () {\r\n    pm.expect(response.trnxId).to.exist;\r\n});\r\n\r\npm.test(\"TC12 - Deposit amount is 5000\", function () {\r\n    pm.expect(Number(response.amount)).to.eql(5000);\r\n});\r\n\r\npm.test(\"TC12 - Agent balance returned\", function () {\r\n    pm.expect(response.agentBalance).to.exist;\r\n});\r\n\r\nif (\r\n    pm.response.code === 201 &&\r\n    response.trnxId\r\n) {\r\n    pm.collectionVariables.set(\r\n        \"systemToAgentTrnxId\",\r\n        response.trnxId\r\n    );\r\n\r\n    console.log(\"SYSTEM to Agent transaction ID saved.\");\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{systemToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"from_account\": \"SYSTEM\",\r\n    \"to_account\": \"{{agentPhone}}\",\r\n    \"amount\": 5000\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/deposit",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "deposit"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC15 SYSTEM deposit with invalid amount",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"N04 - Invalid deposit amount is rejected\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r\n});\r\n\r\npm.test(\"N04 - No successful transaction is created\", function () {\r\n    pm.expect(response.trnxId).to.be.undefined;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{systemToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"SYSTEM\",\r\n  \"to_account\": \"{{agentPhone}}\",\r\n  \"amount\": -100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/deposit",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "deposit"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC16 - Agent Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC13 - Agent login request returns HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC13 - Agent OTP is required\", function () {\r\n    pm.expect(response.otpRequired).to.eql(true);\r\n});\r\n\r\npm.test(\"TC13 - OTP response message exists\", function () {\r\n    pm.expect(response.message).to.include(\"OTP\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"{{agentEmail}}\",\r\n    \"password\": \"1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC17 - Verify Agent OTP",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC14 - OTP verification returns HTTP 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC14 - Agent login successful\", function () {\r\n    pm.expect(response.message).to.eql(\"Login successful\");\r\n});\r\n\r\npm.test(\"TC14 - Agent JWT generated\", function () {\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n    pm.expect(response.token.length).to.be.greaterThan(0);\r\n});\r\n\r\npm.test(\"TC14 - Agent role verified\", function () {\r\n    pm.expect(response.role).to.eql(\"Agent\");\r\n});\r\n\r\n// Automatically replace the previous Agent token\r\nif (\r\n    pm.response.code === 200 &&\r\n    response.token &&\r\n    response.role === \"Agent\"\r\n) {\r\n    pm.collectionVariables.set(\"agentToken\", response.token);\r\n\r\n    console.log(\"Latest Agent token saved successfully.\");\r\n\r\n} else {\r\n    console.log(\"Agent token was not updated.\");\r\n}\r\n\r\n// Verify that the newest token is stored\r\npm.test(\"TC14 - Latest Agent token saved in collection\", function () {\r\n    pm.expect(\r\n        pm.collectionVariables.get(\"agentToken\")\r\n    ).to.eql(response.token);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"identifier\": \"{{agentEmail}}\",\r\n    \"otp\": \"{{devOtp}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/verify-otp?env=dev",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "verify-otp"
+          ],
+          "query": [
+            {
+              "key": "env",
+              "value": "dev"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC18 – Agent Deposit to Customer 1",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC15 - Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC15 - Deposit successful\", function () {\r\n    pm.expect(response.message).to.eql(\"Deposit successful\");\r\n});\r\n\r\npm.test(\"TC15 - Transaction ID generated\", function () {\r\n    pm.expect(response.trnxId).to.be.a(\"string\");\r\n    pm.expect(response.trnxId).to.not.be.empty;\r\n});\r\n\r\npm.test(\"TC15 - Deposit commission is ৳50\", function () {\r\n    pm.expect(Number(response.commission)).to.eql(50);\r\n});\r\n\r\npm.test(\"TC15 - Current balance is returned\", function () {\r\n    pm.expect(response.currentBalance).to.exist;\r\n});\r\n\r\n// Save transaction ID\r\nif (pm.response.code === 201 && response.trnxId) {\r\n    pm.collectionVariables.set(\"agentDepositTrnxId\", response.trnxId);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{agentToken}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"{{agentPhone}}\",\r\n  \"to_account\": \"{{customer1Phone}}\",\r\n  \"amount\": 2000\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/deposit",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "deposit"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC19 – Customer 1 Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC16 - Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC16 - OTP required\", function () {\r\n    pm.expect(response.otpRequired).to.eql(true);\r\n});\r\n\r\npm.test(\"TC16 - OTP message returned\", function () {\r\n    pm.expect(response.message).to.include(\"OTP\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"{{customer1Email}}\",\r\n  \"password\": \"1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC20 – Customer 1 OTP Verification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC17 - Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC17 - Customer login successful\", function () {\r\n    pm.expect(response.message).to.eql(\"Login successful\");\r\n});\r\n\r\npm.test(\"TC17 - JWT token generated\", function () {\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n    pm.expect(response.token.length).to.be.greaterThan(0);\r\n});\r\n\r\npm.test(\"TC17 - Customer role verified\", function () {\r\n    pm.expect(response.role).to.eql(\"Customer\");\r\n});\r\n\r\n// Save or automatically replace the previous Customer 1 token\r\nif (\r\n    pm.response.code === 200 &&\r\n    response.message === \"Login successful\" &&\r\n    response.token &&\r\n    response.role === \"Customer\"\r\n) {\r\n    pm.collectionVariables.set(\"customer1Token\", response.token);\r\n    console.log(\"Latest Customer 1 token saved successfully.\");\r\n} else {\r\n    console.log(\"Customer 1 token was not updated.\");\r\n}\r\n\r\npm.test(\"TC17 - Latest Customer 1 token stored\", function () {\r\n    pm.expect(\r\n        pm.collectionVariables.get(\"customer1Token\")\r\n    ).to.eql(response.token);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}rt"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"identifier\": \"{{customer1Email}}\",\r\n  \"otp\": \"{{devOtp}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/verify-otp?env=dev",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "verify-otp"
+          ],
+          "query": [
+            {
+              "key": "env",
+              "value": "dev"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC21 – Customer 1 sends ৳1,000 to Customer 2.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC18 - Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC18 - Send money successful\", function () {\r\n    pm.expect(response.message).to.eql(\"Send money successful\");\r\n});\r\n\r\npm.test(\"TC18 - Transaction ID generated\", function () {\r\n    pm.expect(response.trnxId).to.be.a(\"string\");\r\n    pm.expect(response.trnxId).to.not.be.empty;\r\n});\r\n\r\npm.test(\"TC18 - Service fee returned\", function () {\r\n    pm.expect(response.fee).to.exist;\r\n    pm.expect(Number(response.fee)).to.be.a(\"number\");\r\n    pm.expect(Number(response.fee)).to.be.at.least(0);\r\n});\r\n\r\npm.test(\"TC18 - Current balance returned\", function () {\r\n    pm.expect(response.currentBalance).to.exist;\r\n});\r\n\r\n// Save transaction ID and actual service fee\r\nif (pm.response.code === 201 && response.trnxId) {\r\n    pm.collectionVariables.set(\"sendMoneyTrnxId\", response.trnxId);\r\n    pm.collectionVariables.set(\"sendMoneyFee\", String(response.fee));\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer1Token}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"{{customer1Phone}}\",\r\n  \"to_account\": \"{{customer2Phone}}\",\r\n  \"amount\": 1000\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/sendmoney",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "sendmoney"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC22 Customer sends money to own account",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"N06 - Self-transfer is rejected\", function () {\r\n    pm.expect(pm.response.code).to.eql(400);\r\n});\r\n\r\npm.test(\"N06 - No transaction is created\", function () {\r\n    pm.expect(response.trnxId).to.be.undefined;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer1Token}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"{{customer1Phone}}\",\r\n  \"to_account\": \"{{customer1Phone}}\",\r\n  \"amount\": 100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/sendmoney",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "sendmoney"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC23 Agent deposits an invalid amount to Customer 1",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let response = pm.response.json();\r\n\r\npm.test(\"N05 - Invalid deposit amount is rejected\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r\n});\r\n\r\npm.test(\"N05 - No transaction is created\", function () {\r\n    pm.expect(response.trnxId).to.be.undefined;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer1Token}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"{{agentPhone}}\",\r\n  \"to_account\": \"{{customer1Phone}}\",\r\n  \"amount\": -100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/sendmoney",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "sendmoney"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC24 – Customer 2 Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC19 - Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC19 - OTP required\", function () {\r\n    pm.expect(response.otpRequired).to.eql(true);\r\n});\r\n\r\npm.test(\"TC19 - OTP message returned\", function () {\r\n    pm.expect(response.message).to.include(\"OTP\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"{{customer2Email}}\",\r\n  \"password\": \"1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC25 – Customer 2 OTP Verification with Invalid OTP",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC20 - Invalid OTP is rejected\", function () {\r\n    pm.expect(pm.response.code).to.not.eql(200);\r\n});\r\n\r\npm.test(\"TC20 - No authentication token is generated\", function () {\r\n    pm.expect(response.token).to.be.undefined;\r\n});\r\n\r\npm.test(\"TC20 - Error message is returned\", function () {\r\n    pm.expect(response.message).to.be.a(\"string\");\r\n    pm.expect(response.message).to.not.be.empty;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"identifier\": \"{{customer2Email}}\",\r\n  \"otp\": \"00000\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/verify-otp?env=dev",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "verify-otp"
+          ],
+          "query": [
+            {
+              "key": "env",
+              "value": "dev"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC26 – Customer 2 OTP Verification",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC20 - Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"TC20 - Customer 2 login successful\", function () {\r\n    pm.expect(response.message).to.eql(\"Login successful\");\r\n});\r\n\r\npm.test(\"TC20 - JWT token generated\", function () {\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n    pm.expect(response.token.length).to.be.greaterThan(0);\r\n});\r\n\r\npm.test(\"TC20 - Customer role verified\", function () {\r\n    pm.expect(response.role).to.eql(\"Customer\");\r\n});\r\n\r\nif (\r\n    pm.response.code === 200 &&\r\n    response.message === \"Login successful\" &&\r\n    response.token &&\r\n    response.role === \"Customer\"\r\n) {\r\n    pm.collectionVariables.set(\"customer2Token\", response.token);\r\n    console.log(\"Latest Customer 2 token saved successfully.\");\r\n}\r\n\r\npm.test(\"TC20 - Latest Customer 2 token stored\", function () {\r\n    pm.expect(\r\n        pm.collectionVariables.get(\"customer2Token\")\r\n    ).to.eql(response.token);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"identifier\": \"{{customer2Email}}\",\r\n  \"otp\": \"{{devOtp}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/verify-otp?env=dev",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "verify-otp"
+          ],
+          "query": [
+            {
+              "key": "env",
+              "value": "dev"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC27 – Customer 2 Cashout ৳500 from Agent",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC21 - Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC21 - Withdraw successful\", function () {\r\n    pm.expect(response.message).to.eql(\"Withdraw successful\");\r\n});\r\n\r\npm.test(\"TC21 - Transaction ID generated\", function () {\r\n    pm.expect(response.trnxId).to.be.a(\"string\");\r\n    pm.expect(response.trnxId).to.not.be.empty;\r\n});\r\n\r\npm.test(\"TC21 - Service fee returned\", function () {\r\n    pm.expect(response.fee).to.exist;\r\n    pm.expect(Number(response.fee)).to.be.a(\"number\");\r\n    pm.expect(Number(response.fee)).to.be.at.least(0);\r\n});\r\n\r\npm.test(\"TC21 - Current balance returned\", function () {\r\n    pm.expect(response.currentBalance).to.exist;\r\n});\r\n\r\n// Save transaction details\r\nif (pm.response.code === 201 && response.trnxId) {\r\n    pm.collectionVariables.set(\"withdrawTrnxId\", response.trnxId);\r\n    pm.collectionVariables.set(\"withdrawFee\", String(response.fee));\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer2Token}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"{{customer2Phone}}\",\r\n  \"to_account\": \"{{agentPhone}}\",\r\n  \"amount\": 500\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/withdraw",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "withdraw"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC28 Customer Cashout with invalid amount",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"N07 - Invalid withdrawal amount is rejected\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r\n});\r\n\r\npm.test(\"N07 - No withdrawal transaction is created\", function () {\r\n    pm.expect(response.trnxId).to.be.undefined;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer2Token}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"{{customer2Phone}}\",\r\n  \"to_account\": \"{{agentPhone}}\",\r\n  \"amount\": -100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/withdraw",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "withdraw"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC29 – Customer 1 Payment to Merchant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"TC23 - Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"TC23 - Payment successful\", function () {\r\n    pm.expect(response.message).to.eql(\"Payment successful\");\r\n});\r\n\r\npm.test(\"TC23 - Transaction ID generated\", function () {\r\n    pm.expect(response.trnxId).to.be.a(\"string\");\r\n    pm.expect(response.trnxId).to.not.be.empty;\r\n});\r\n\r\npm.test(\"TC23 - Payment service fee returned\", function () {\r\n    pm.expect(response.fee).to.exist;\r\n    pm.expect(Number(response.fee)).to.be.at.least(0);\r\n});\r\n\r\npm.test(\"TC23 - Current balance returned\", function () {\r\n    pm.expect(response.currentBalance).to.exist;\r\n});\r\n\r\n// Save transaction details\r\nif (pm.response.code === 201 && response.trnxId) {\r\n    pm.collectionVariables.set(\"paymentTrnxId\", response.trnxId);\r\n    pm.collectionVariables.set(\"paymentFee\", String(response.fee));\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer1Token}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"{{customer1Phone}}\",\r\n  \"to_account\": \"{{merchantPhone}}\",\r\n  \"amount\": 400\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/payment",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "payment"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TC30 Customer Payment with Invalid Amount",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\npm.test(\"N08 - Invalid payment amount is rejected\", function () {\r\n    pm.expect(pm.response.code).to.eql(400);\r\n});\r\n\r\npm.test(\"N08 - No payment transaction is created\", function () {\r\n    pm.expect(response.trnxId).to.be.undefined;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer1Token}}"
+          },
+          {
+            "key": "X-AUTH-SECRET-KEY",
+            "value": "{{partnerKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"from_account\": \"{{customer1Phone}}\",\r\n  \"to_account\": \"{{merchantPhone}}\",\r\n  \"amount\": -100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transaction/payment",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transaction",
+            "payment"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "key": "devOtp",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "secret": true
+    },
+    {
+      "key": "partnerKey",
+      "value": ""
+    },
+    {
+      "key": "customer1Name",
+      "value": ""
+    },
+    {
+      "key": "customer1Phone",
+      "value": ""
+    },
+    {
+      "key": "customer1Email",
+      "value": ""
+    },
+    {
+      "key": "customer1Nid",
+      "value": ""
+    },
+    {
+      "key": "customer1Id",
+      "value": ""
+    },
+    {
+      "key": "customer2Name",
+      "value": ""
+    },
+    {
+      "key": "customer2Phone",
+      "value": ""
+    },
+    {
+      "key": "customer2Email",
+      "value": ""
+    },
+    {
+      "key": "customer2Nid",
+      "value": ""
+    },
+    {
+      "key": "customer2Id",
+      "value": ""
+    },
+    {
+      "key": "agentName",
+      "value": ""
+    },
+    {
+      "key": "agentPhone",
+      "value": ""
+    },
+    {
+      "key": "agentEmail",
+      "value": ""
+    },
+    {
+      "key": "agentNid",
+      "value": ""
+    },
+    {
+      "key": "agentId",
+      "value": ""
+    },
+    {
+      "key": "merchantName",
+      "value": ""
+    },
+    {
+      "key": "merchantPhone",
+      "value": ""
+    },
+    {
+      "key": "merchantEmail",
+      "value": ""
+    },
+    {
+      "key": "merchantNid",
+      "value": ""
+    },
+    {
+      "key": "merchantId",
+      "value": ""
+    },
+    {
+      "key": "systemToken",
+      "value": ""
+    },
+    {
+      "key": "systemToAgentTrnxId",
+      "value": ""
+    },
+    {
+      "key": "agentToken",
+      "value": ""
+    },
+    {
+      "key": "agentDepositTrnxId",
+      "value": ""
+    },
+    {
+      "key": "customer1Token",
+      "value": ""
+    },
+    {
+      "key": "sendMoneyTrnxId",
+      "value": ""
+    },
+    {
+      "key": "sendMoneyFee",
+      "value": ""
+    },
+    {
+      "key": "customer2Token",
+      "value": ""
+    },
+    {
+      "key": "withdrawTrnxId",
+      "value": ""
+    },
+    {
+      "key": "withdrawFee",
+      "value": ""
+    },
+    {
+      "key": "paymentTrnxId",
+      "value": ""
+    },
+    {
+      "key": "paymentFee",
+      "value": ""
+    }
+  ]
+}
