@@ -155,14 +155,15 @@ Assignments/Assignment 2/
 
 ## Documentation
 
-Official Postman API Documentation:
+### Official Postman API Documentation:
 https://documenter.getpostman.com/view/43453967/2sBYHYuHrB
 
 ---
 
 ## Attachments
 
-### 1. Summary Report
-*Newman HTMLExtra Summary dashboard showing **30 Total Requests**, **100 Assertions Passed**, **0 Failures**, and **0 Skipped** tests.*
+### Summary Report
+
+<img width="1920" height="1733" alt="image" src="https://github.com/user-attachments/assets/d07e1edc-79f7-4964-9d6f-d34d2b39a0ae" />
 
 
