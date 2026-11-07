@@ -155,8 +155,11 @@ Assignments/Assignment 2/
 
 ## Documentation
 
-### Official Postman API Documentation:
+### 1. Official Postman API Documentation:
 https://documenter.getpostman.com/view/43453967/2sBYHYuHrB
+
+### 2 .Total 30 Test Cases in Excel
+https://docs.google.com/spreadsheets/d/1VNuJ-Ny6rcjc137usQh6PamvT5ZxUAkz/edit?usp=sharing&ouid=106248465366270776795&rtpof=true&sd=true
 
 ---
 
