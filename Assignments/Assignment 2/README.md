@@ -183,3 +183,16 @@ This project successfully delivers an automated end-to-end API testing suite for
 - **CI/CD Readiness & Data Security**: Established headless execution via Newman with rich HTML dashboard reporting, while ensuring data privacy through Git tracking exclusions for sensitive test credentials.
 
 
+---
+
+## Copyright
+
+© 2026 [Aononto Jahan](https://aonontojahan.vercel.app). All Rights Reserved.
+
+This project is created for educational and academic purposes as part of the SDET API Testing Assignment.
+
+Unauthorized copying, modification, distribution, or reproduction of this project's content without prior permission from the author is prohibited.
+
+**Author:** [Aononto Jahan](https://aonontojahan.vercel.app)
+
+
