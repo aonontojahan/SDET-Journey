@@ -1,4 +1,4 @@
-# 🚀 SDET Journey — Software Development Engineer in Test
+# 🚀 SDET — Software Development Engineer in Test
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Postman](https://img.shields.io/badge/Postman-v10+-FF6C37?style=flat&logo=postman&logoColor=white)](https://www.postman.com/)
