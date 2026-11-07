@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Test reports across modules
+**/Reports/*.html
+!**/Reports/.gitkeep
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor Files
+.vscode/
+.idea/
+
