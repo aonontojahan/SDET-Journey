@@ -1,0 +1,20 @@
+# Dependencies - never commit node_modules
+node_modules/
+
+# Newman HTML report output (contains test data, tokens, and personal credentials)
+Reports/*.html
+Reports/report.html
+!Reports/.gitkeep
+
+# Environment / secrets - never commit credentials or local configs
+.env
+.env.local
+*.pem
+*.key
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
