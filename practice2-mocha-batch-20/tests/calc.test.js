@@ -1,7 +1,7 @@
 // Learning Unit Testing
 
 import { expect } from "chai";
-import {sub, sum} from "../calc.js"
+import {sub, sum} from "../utils/calc.js"
 
 describe ("Calculation Test", ()=>{
 
