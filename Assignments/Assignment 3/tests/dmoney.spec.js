@@ -27,6 +27,7 @@ let agentToken = "";
 let customer1Token = "";
 let customer1Email = "";
 let customer2Email = "";
+let customer2Token = "";
 
 describe("dMoney Integration Testing", () => {
   // TC01: Admin login - positive flow
@@ -464,6 +465,114 @@ describe("dMoney Integration Testing", () => {
 
     let { data, status } = response;
     console.log("Send money response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(201);
+    expect(data.trnxId).to.not.be.undefined;
+    expect(data.fee).to.exist;
+    expect(Number(data.fee)).to.be.at.least(0);
+  });
+
+  // TC18: Customer 2 Login - positive flow (OTP required)
+  it("Verify customer 2 can login with correct creds", async () => {
+    let response = await axios.post(`${baseUrl}/user/login`, {
+      email: customer2Email,
+      password: "1234",
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Customer 2 login error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Customer 2 login response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(200);
+    expect(data.otpRequired).to.equal(true);
+  });
+
+  // TC19: Customer 2 OTP Verification - positive flow
+  it("Verify customer 2 can verify OTP and get token", async () => {
+    let response = await axios.post(`${baseUrl}/user/verify-otp?env=dev`, {
+      identifier: customer2Email,
+      otp: "0000",
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Customer 2 OTP verify error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Customer 2 OTP verify response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(200);
+    expect(data.token).to.not.be.undefined;
+    expect(data.role).to.equal("Customer");
+
+    // Store customer 2 token for withdraw test
+    customer2Token = data.token;
+  });
+
+  // TC20: Customer 2 Cashout 500 tk from Agent - positive flow
+  it("Verify customer 2 can cashout 500 tk from agent", async () => {
+    let response = await axios.post(`${baseUrl}/transaction/withdraw`, {
+      from_account: customer2Phone,
+      to_account: agentPhone,
+      amount: 500,
+    }, {
+      headers: {
+        Authorization: `Bearer ${customer2Token}`,
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Cashout error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Cashout response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(201);
+    expect(data.trnxId).to.not.be.undefined;
+    expect(data.fee).to.exist;
+    expect(Number(data.fee)).to.be.at.least(0);
+  });
+
+  // TC21: Customer 2 Payment to Merchant - positive flow
+  it("Verify customer 2 can pay 400 tk to merchant", async () => {
+    let response = await axios.post(`${baseUrl}/transaction/payment`, {
+      from_account: customer2Phone,
+      to_account: merchantPhone,
+      amount: 400,
+    }, {
+      headers: {
+        Authorization: `Bearer ${customer2Token}`,
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Payment error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Payment response:", data);
     console.log("Status code:", status);
 
     expect(status).to.equal(201);
