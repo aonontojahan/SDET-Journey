@@ -21,6 +21,7 @@ let agentId = "";
 let agentPhone = "";
 let merchantId = "";
 let merchantPhone = "";
+let systemToken = "";
 
 describe("dMoney Integration Testing", () => {
   // TC01: Admin login - positive flow
@@ -249,5 +250,55 @@ describe("dMoney Integration Testing", () => {
     console.log("Status code:", status);
 
     expect(status).to.equal(200);
+  });
+
+  // TC10: SYSTEM Login - positive flow
+  it("Verify system can login with correct creds", async () => {
+    let response = await axios.post(`${baseUrl}/user/login`, {
+      email: "system@dmoney.com",
+      password: "1234",
+    }, {
+      headers: { "Content-Type": "application/json" },
+    }).catch(err => {
+      console.error("System login error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("System login response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(200);
+    expect(data.token).to.not.be.undefined;
+
+    // Store system token for deposit test
+    systemToken = data.token;
+  });
+
+  // TC11: SYSTEM Deposit to Agent - positive flow
+  it("Verify system can deposit 5000 tk to agent", async () => {
+    let response = await axios.post(`${baseUrl}/transaction/deposit`, {
+      from_account: "SYSTEM",
+      to_account: agentPhone,
+      amount: 5000,
+    }, {
+      headers: {
+        Authorization: `Bearer ${systemToken}`,
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Deposit error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Deposit response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(201);
+    expect(data.trnxId).to.not.be.undefined;
   });
 });
