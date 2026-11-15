@@ -19,9 +19,11 @@ let customer2Id = "";
 let customer2Phone = "";
 let agentId = "";
 let agentPhone = "";
+let agentEmail = "";
 let merchantId = "";
 let merchantPhone = "";
 let systemToken = "";
+let agentToken = "";
 
 describe("dMoney Integration Testing", () => {
   // TC01: Admin login - positive flow
@@ -151,10 +153,11 @@ describe("dMoney Integration Testing", () => {
   // TC06: Create Agent - positive flow
   it("Verify admin can create an agent", async () => {
     agentPhone = `017${generateRandomNumber(10000000, 99999999)}`;
+    agentEmail = `aonontojahan+${generateRandomNumber(1000, 9999)}@gmail.com`;
 
     let response = await axios.post(`${baseUrl}/user/create`, {
       name: faker.person.fullName(),
-      email: `aonontojahan+${generateRandomNumber(1000, 9999)}@gmail.com`,
+      email: agentEmail,
       password: "1234",
       phone_number: agentPhone,
       nid: `${generateRandomNumber(1000000000000, 9999999999999)}`,
@@ -179,6 +182,7 @@ describe("dMoney Integration Testing", () => {
     agentId = data.user?.id;
     console.log("Stored agentId:", agentId);
     console.log("Stored agentPhone:", agentPhone);
+    console.log("Stored agentEmail:", agentEmail);
   });
 
   // TC07: Activate Agent - positive flow
@@ -300,5 +304,84 @@ describe("dMoney Integration Testing", () => {
 
     expect(status).to.equal(201);
     expect(data.trnxId).to.not.be.undefined;
+  });
+
+  // TC12: Agent Login - positive flow (OTP required)
+  it("Verify agent can login with correct creds", async () => {
+    let response = await axios.post(`${baseUrl}/user/login`, {
+      email: agentEmail,
+      password: "1234",
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Agent login error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Agent login response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(200);
+    expect(data.otpRequired).to.equal(true);
+  });
+
+  // TC13: Agent OTP Verification - positive flow
+  it("Verify agent can verify OTP and get token", async () => {
+    let response = await axios.post(`${baseUrl}/user/verify-otp?env=dev`, {
+      identifier: agentEmail,
+      otp: "0000",
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("OTP verify error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("OTP verify response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(200);
+    expect(data.token).to.not.be.undefined;
+    expect(data.role).to.equal("Agent");
+
+    // Store agent token for deposit test
+    agentToken = data.token;
+  });
+
+  // TC14: Agent Deposit to Customer 1 - positive flow
+  it("Verify agent can deposit 2000 tk to customer 1", async () => {
+    let response = await axios.post(`${baseUrl}/transaction/deposit`, {
+      from_account: agentPhone,
+      to_account: customer1Phone,
+      amount: 2000,
+    }, {
+      headers: {
+        Authorization: `Bearer ${agentToken}`,
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Agent deposit error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Agent deposit response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(201);
+    expect(data.trnxId).to.not.be.undefined;
+    expect(Number(data.commission)).to.equal(50);
   });
 });
