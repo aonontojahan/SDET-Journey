@@ -17,6 +17,10 @@ let customer1Id = "";
 let customer1Phone = "";
 let customer2Id = "";
 let customer2Phone = "";
+let agentId = "";
+let agentPhone = "";
+let merchantId = "";
+let merchantPhone = "";
 
 describe("dMoney Integration Testing", () => {
   // TC01: Admin login - positive flow
@@ -138,6 +142,110 @@ describe("dMoney Integration Testing", () => {
 
     let { data, status } = response;
     console.log("Activate customer 2 response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(200);
+  });
+
+  // TC06: Create Agent - positive flow
+  it("Verify admin can create an agent", async () => {
+    agentPhone = `017${generateRandomNumber(10000000, 99999999)}`;
+
+    let response = await axios.post(`${baseUrl}/user/create`, {
+      name: faker.person.fullName(),
+      email: `aonontojahan+${generateRandomNumber(1000, 9999)}@gmail.com`,
+      password: "1234",
+      phone_number: agentPhone,
+      nid: `${generateRandomNumber(1000000000000, 9999999999999)}`,
+      role: "Agent",
+    }, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Create agent error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Create agent response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(201);
+    agentId = data.user?.id;
+    console.log("Stored agentId:", agentId);
+    console.log("Stored agentPhone:", agentPhone);
+  });
+
+  // TC07: Activate Agent - positive flow
+  it("Verify admin can activate the agent", async () => {
+    let response = await axios.patch(`${baseUrl}/user/update/${agentId}`, {
+      status: "active",
+    }, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    });
+
+    let { data, status } = response;
+    console.log("Activate agent response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(200);
+  });
+
+  // TC08: Create Merchant - positive flow
+  it("Verify admin can create a merchant", async () => {
+    merchantPhone = `017${generateRandomNumber(10000000, 99999999)}`;
+
+    let response = await axios.post(`${baseUrl}/user/create`, {
+      name: faker.person.fullName(),
+      email: `aonontojahan+${generateRandomNumber(1000, 9999)}@gmail.com`,
+      password: "1234",
+      phone_number: merchantPhone,
+      nid: `${generateRandomNumber(1000000000000, 9999999999999)}`,
+      role: "Merchant",
+    }, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    }).catch(err => {
+      console.error("Create merchant error response:", err.response?.data);
+      console.error("Status:", err.response?.status);
+      throw err;
+    });
+
+    let { data, status } = response;
+    console.log("Create merchant response:", data);
+    console.log("Status code:", status);
+
+    expect(status).to.equal(201);
+    merchantId = data.user?.id;
+    console.log("Stored merchantId:", merchantId);
+    console.log("Stored merchantPhone:", merchantPhone);
+  });
+
+  // TC09: Activate Merchant - positive flow
+  it("Verify admin can activate the merchant", async () => {
+    let response = await axios.patch(`${baseUrl}/user/update/${merchantId}`, {
+      status: "active",
+    }, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+        "X-AUTH-SECRET-KEY": "ROADTOSDET",
+      },
+    });
+
+    let { data, status } = response;
+    console.log("Activate merchant response:", data);
     console.log("Status code:", status);
 
     expect(status).to.equal(200);
