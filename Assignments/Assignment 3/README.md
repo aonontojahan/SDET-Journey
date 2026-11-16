@@ -62,6 +62,11 @@ npm test
 | TC31 | Agent deposit rejected with negative amount | 400 |
 | TC32 | Customer 2 OTP verification rejected with wrong code | 400 |
 
+
+## Console Output Image
+- <img width="1920" height="7638" alt="image" src="https://github.com/user-attachments/assets/3222f6ba-c053-478d-8da2-fa0876782998" />
+
+
 ## Key Implementation Notes
 - Negative-flow tests use `validateStatus: () => true` so error responses are captured for assertions instead of throwing.
 - The `.env` admin token may expire, so tests requiring auth obtain a fresh token via admin login.
