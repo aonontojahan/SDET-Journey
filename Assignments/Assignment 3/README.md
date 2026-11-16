@@ -90,3 +90,6 @@ Assignment 3/
 
 ## Notes
 - `.env` and `node_modules/` are excluded from version control.
+
+## Copyright
+© aonontojahan.vercel.app. All rights reserved.
