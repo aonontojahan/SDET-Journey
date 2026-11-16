@@ -14,17 +14,53 @@ This project delivers end-to-end integration tests for the dMoney REST API using
 - npm
 - dMoney API server running at `http://localhost:5000`
 
-## Setup
+## How to Run
+
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-## Run Tests
+### 2. Start the dMoney API server
+
+Ensure the backend is running locally on port 5000:
+
+```bash
+# Start the API server (run in a separate terminal)
+npm run start
+# or
+npm run dev
+```
+
+### 3. Run the test suite
 
 ```bash
 npm test
 ```
+
+This executes all 32 test cases via Mocha with a 10-second timeout per test:
+
+```bash
+npx mocha tests/dmoney.spec.js --timeout 10000
+```
+
+### 4. Verify the environment
+
+Confirm the API base URL and admin token are configured in `.env`:
+
+```bash
+cat .env
+```
+
+Expected contents:
+
+```
+baseUrl=http://localhost:5000
+access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+> Note: The `.env` admin token is used only as a fallback. Tests obtain a fresh token via admin login at runtime.
 
 ## Test Coverage (32 Test Cases)
 
