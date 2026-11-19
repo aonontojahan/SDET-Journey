@@ -247,7 +247,7 @@ Educational project for learning CRUD with Node.js + Sequelize + MySQL.
 
 ## 👨‍💻 Author
 
-Built as part of SDET learning journey. Happy coding!
+Built as a part of SDET learning journey. Happy coding!
 
 ## © Copyright
 
