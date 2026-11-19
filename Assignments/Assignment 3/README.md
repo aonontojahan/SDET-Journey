@@ -139,10 +139,10 @@ Assignment 3/
 
 ## Copyright
 
-Copyright © 2026 Aononto Jahan. All Rights Reserved.
+Copyright © 2026 [Aononto Jahan](https://aonontojahan.vercel.app). All Rights Reserved.
 
 This project is created for educational and academic purposes as part of the SDET API Testing Assignment.
 
 Unauthorized copying, modification, distribution, or reproduction of this project's content without prior permission from the author is prohibited.
 
-Author: Aononto Jahan
+Author: [Aononto Jahan](https://aonontojahan.vercel.app)
