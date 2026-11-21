@@ -1,0 +1,23 @@
+{
+  "name": "sdet-journey",
+  "version": "1.0.0",
+  "description": "[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE) [![Postman](https://img.shields.io/badge/Postman-v10+-FF6C37?style=flat&logo=postman&logoColor=white)](https://www.postman.com/) [![Newman](https://img.shields.io/badge/Newman-CLI_Runner-orange?style=flat)](https://www.npmjs.com/package/newman) [![Node.js](https://img.shields.io/badge/Node.js-16%2B-green?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/) [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript) [![Tests Passed](https://img.shields.io/badge/Tests-100%25%20Passing-brightgreen?style=flat)]()",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aonontojahan/SDET-Journey.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/aonontojahan/SDET-Journey/issues"
+  },
+  "homepage": "https://github.com/aonontojahan/SDET-Journey#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6"
+  }
+}
