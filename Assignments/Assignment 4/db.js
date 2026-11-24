@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize } from "sequelize"
+import { DataTypes, Sequelize, Op } from "sequelize"
 import dotenv from "dotenv"
 dotenv.config()
 
@@ -83,6 +83,10 @@ export const Blog = sequelize.define("Blog", {
         primaryKey: true,
         autoIncrement: true,
     },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
     blogTitle: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -112,19 +116,29 @@ export const Blog = sequelize.define("Blog", {
 // One User can have many Blogs
 // Each Blog belongs to one User
 // The userId field in Blogs table references the User's id
-Blog.associate = (models) => {
-    Blog.belongsTo(models.User, {
-        foreignKey: "userId",
-        as: "user",
-    })
+
+// Set up associations after models are defined
+const setupAssociations = () => {
+    Blog.associate = (models) => {
+        Blog.belongsTo(models.User, {
+            foreignKey: "userId",
+            as: "user",
+        })
+    }
+
+    User.associate = (models) => {
+        User.hasMany(models.Blog, {
+            foreignKey: "userId",
+            as: "blogs",
+        })
+    }
+
+    // Call the associations
+    Blog.associate({ User })
+    User.associate({ Blog })
 }
 
-User.associate = (models) => {
-    User.hasMany(models.Blog, {
-        foreignKey: "userId",
-        as: "blogs",
-    })
-}
+setupAssociations()
 
 // Export initialized models for use in controllers
-export { sequelize }
+export { sequelize, Op }

@@ -1,7 +1,7 @@
 // Blog CRUD Operations
 // Handles all blog creation, reading, updating, and deleting functionality
 // Most operations require user authentication, except viewing all blogs
-import { Blog } from "./db.js"
+import { Blog, User, Op } from "./db.js"
 
 // Create a new blog post
 // Called after a user logs in to create their blog
@@ -30,7 +30,11 @@ export async function createBlog(userId, blogTitle, blog, category) {
 // Blogs are displayed in reverse chronological order (newest first)
 export async function getUserBlogs(userId) {
     try {
-        const blogs = await Blog.findAll({ where: { userId }, order: [["createAt", "DESC"]] })
+        const blogs = await Blog.findAll({
+            where: { userId },
+            order: [["createAt", "DESC"]],
+            include: [{ model: User, as: "user", attributes: ["firstName", "lastName"] }]
+        })
         if (blogs.length === 0) {
             console.log("📝 No blogs found for this user.")
             return []
@@ -78,7 +82,8 @@ export async function searchBlog(searchTerm) {
                 blogTitle: {
                     [Op.like]: `%${searchTerm}%`
                 }
-            }
+            },
+            include: [{ model: User, as: "user", attributes: ["firstName", "lastName"] }]
         })
 
         if (blogs.length === 0) {
@@ -90,7 +95,7 @@ export async function searchBlog(searchTerm) {
         blogs.forEach((blog, index) => {
             console.log(`\n${index + 1}. ID: ${blog.id}`)
             console.log(`   Title: "${blog.blogTitle}"`)
-            console.log(`   User ID: ${blog.userId}`)
+            console.log(`   User: ${blog.User ? blog.User.firstName + " " + blog.User.lastName : "Unknown"}`)
             console.log(`   Category: ${blog.category || "Uncategorized"}`)
         })
 

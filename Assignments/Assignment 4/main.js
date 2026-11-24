@@ -3,6 +3,7 @@
 // Features: User registration, login, blog CRUD, admin controls
 
 import { initDB, closeDB } from "./db.js"
+import { Blog, User } from "./db.js"
 import {
     userRegistration,
     userLogin,
@@ -109,8 +110,27 @@ Enter your choice (1-7):
 
 async function viewAllBlogs() {
     console.log("\n--- Viewing All Blogs ---")
-    console.log("Displaying all available blogs...")
-    console.log("✅ Feature: View All Blogs accessed\n")
+    try {
+        const blogs = await Blog.findAll({
+            order: [["createAt", "DESC"]],
+            include: [{ model: User, as: "user", attributes: ["firstName", "lastName"] }]
+        })
+        if (blogs.length === 0) {
+            console.log("📝 No blogs found in the system.")
+        } else {
+            console.log(`\n=== ALL BLOGS (${blogs.length}) ===`)
+            blogs.forEach((blog, index) => {
+                console.log(`\n${index + 1}. ID: ${blog.id}`)
+                console.log(`   Title: "${blog.blogTitle}"`)
+                console.log(`   User: ${blog.User ? blog.User.firstName + " " + blog.User.lastName : "Unknown"}`)
+                console.log(`   Category: ${blog.category || "Uncategorized"}`)
+                console.log(`   Created: ${blog.createAt}`)
+            })
+        }
+    } catch (error) {
+        console.error("❌ Error fetching blogs:", error.message)
+    }
+    console.log()
 }
 
 async function handleRegister() {
