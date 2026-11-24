@@ -73,7 +73,7 @@ export const User = sequelize.define("User", {
     },
 }, {
     tableName: "users",
-    timestamps: false, // We'll manage createAt/updateAt manually or let Sequelize handle it
+    timestamps: true 
 })
 
 // Define Blog model
@@ -105,7 +105,7 @@ export const Blog = sequelize.define("Blog", {
     },
 }, {
     tableName: "blogs",
-    timestamps: false,
+    timestamps: true,
 })
 
 // Define Relationship: One-to-Many
