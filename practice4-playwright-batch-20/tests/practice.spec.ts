@@ -40,10 +40,29 @@ test("Open New Window", async ({ page, context }) => {
   await newPage.close();
 });
 
-test.only("Open Modal", async ({ page }) => {
+test("Open Modal", async ({ page }) => {
   await page.goto("http://localhost:3000/dashboard/practice-components");
   await page.getByRole("button", { name: "Open Modal" }).click();
   await page.getByRole("button", { name: "Close" }).nth(0).click();
   const actualValue = await page.getByText("Modal Closed!").textContent();
   expect(actualValue?.includes("Modal Closed")).toBeTruthy();
 });
+
+test("NextJS Date Time Picker", async ({ page }) =>{
+  await page.goto("http://localhost:3000/dashboard/practice-components");
+  let dateTimeInput = await page.locator('[type = "datetime-local"]');
+  await dateTimeInput.fill("2027-01-01T14:04");
+  await page.pause();
+  
+})
+
+test.only("Readonly Date Field", async ({ page }) =>{
+  await page.goto("http://localhost:3000/dashboard/practice-components");
+  const readOnlyElem = await page.locator("[readonly]").elementHandle();
+  await readOnlyElem.evaluate((el:HTMLInputElement) =>{
+    el.removeAttribute("readonly");
+    el.value = '2024-01-05';
+    el.dispatchEvent(new Event('chnage',{bubbles:true}));
+  })
+  await page.pause();
+})
