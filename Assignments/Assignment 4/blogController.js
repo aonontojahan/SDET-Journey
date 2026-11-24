@@ -1,6 +1,7 @@
 // Blog CRUD Operations
 // Handles all blog creation, reading, updating, and deleting functionality
 // Most operations require user authentication, except viewing all blogs
+import { Blog } from "./db.js"
 
 // Create a new blog post
 // Called after a user logs in to create their blog

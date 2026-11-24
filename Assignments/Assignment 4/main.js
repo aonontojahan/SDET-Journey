@@ -1,10 +1,8 @@
 // Blogging Platform - CRUD Console Application
 // Main entry point for the console-based blogging platform
-// Features user registration, login, blog management, and admin controls
-// Uses ES Modules with process.stdin for console input
+// Features: User registration, login, blog CRUD, admin controls
 
 import { initDB, closeDB } from "./db.js"
-// Import user authentication and management functions
 import {
     userRegistration,
     userLogin,
@@ -12,7 +10,6 @@ import {
     updateUserStatus,
     deleteUser
 } from "./userController.js"
-// Import blog CRUD operations
 import {
     createBlog,
     getUserBlogs,
@@ -21,36 +18,32 @@ import {
     deleteBlog
 } from "./blogController.js"
 
-// Global variable to track the currently logged-in user
 let currentUser = null
 
 // -------------------------------------------------------
-// Helper to read a line from console
+// Readline Interface (ES Module compatible)
 // -------------------------------------------------------
-const lines = []
-rl = null
+const { createInterface } = await import("node:readline")
+const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+})
 
 // -------------------------------------------------------
-// ASK QUESTION FUNCTION
+// Question Function - Reads single line input
 // -------------------------------------------------------
-async function askQuestion(promptText) {
+function askQuestion(promptText) {
     return new Promise((resolve) => {
-        // Process one line of input
-        const readline = require("node:readline").createInterface({
-            input: process.stdin,
-            output: process.stdout
-        })
-
-        readline.question(promptText, (answer) => {
-            readline.close()
+        rl.question(promptText, (answer) => {
             resolve(answer)
         })
     })
 }
 
 // -------------------------------------------------------
-// DISPLAY FUNCTIONS
+// Display Functions
 // -------------------------------------------------------
+
 function displayMainMenu() {
     console.log(`
 ========================================
@@ -111,8 +104,9 @@ Enter your choice (1-7):
 }
 
 // -------------------------------------------------------
-// MENU OPTIONS
+// Menu Functions
 // -------------------------------------------------------
+
 async function viewAllBlogs() {
     console.log("\n--- Viewing All Blogs ---")
     console.log("Displaying all available blogs...")
@@ -135,6 +129,7 @@ async function handleRegister() {
     console.log()
 }
 
+// User login - shows dashboard menu in a loop until logout
 async function handleLogin() {
     console.log("\n--- User Login ---")
     const email = await askQuestion("Enter your email: ")
@@ -142,23 +137,24 @@ async function handleLogin() {
 
     currentUser = await userLogin(email, password)
     if (currentUser) {
+        // Show the appropriate dashboard menu in a loop
         if (currentUser.role === "admin") {
-            runAdminMenu()
+            await runAdminMenu()
         } else {
-            runUserMenu()
+            await runUserMenu()
         }
     }
     console.log()
+    // After logout, return to main menu
 }
 
-// -------------------------------------------------------
-// USER MENU
-// -------------------------------------------------------
+// View user's blogs
 async function viewUserBlogs() {
     console.log("\n--- Your Blogs ---")
     await getUserBlogs(currentUser.id)
 }
 
+// Create a new blog
 async function createNewBlog() {
     console.log("\n--- Create Blog ---")
     const blogTitle = await askQuestion("Enter blog title: ")
@@ -167,11 +163,13 @@ async function createNewBlog() {
     await createBlog(currentUser.id, blogTitle, blogContent, category)
 }
 
+// Search for a blog
 async function searchBlogFunction() {
     const searchTerm = await askQuestion("Enter blog ID or title to search: ")
     await searchBlog(searchTerm)
 }
 
+// Update a blog
 async function updateBlogFunction() {
     const updateId = await askQuestion("Enter blog ID to update: ")
     const newTitle = await askQuestion("Enter new title (or press Enter to skip): ")
@@ -184,17 +182,18 @@ async function updateBlogFunction() {
     })
 }
 
+// Delete a blog
 async function deleteBlogFunction() {
     const delId = await askQuestion("Enter blog ID to delete: ")
     await deleteBlog(Number(delId))
 }
 
 // -------------------------------------------------------
-// USER MENU LOOP
+// User Menu Loop (returns to main menu on logout)
 // -------------------------------------------------------
 async function runUserMenu() {
-    let exit = false
-    while (!exit) {
+    let localExit = false
+    while (!localExit) {
         displayUserMenu()
         const choice = await askQuestion("Enter your choice: ")
 
@@ -207,19 +206,20 @@ async function runUserMenu() {
             case "6":
                 console.log("👋 Logging out...")
                 currentUser = null
-                exit = true
+                localExit = true
                 break
             default: console.log("❌ Invalid choice! Please try again.")
         }
     }
+    // Function ends - returns to handleLogin() which returns to main()
 }
 
 // -------------------------------------------------------
-// ADMIN MENU LOOP
+// Admin Menu Loop (returns to main menu on logout)
 // -------------------------------------------------------
 async function runAdminMenu() {
-    let exit = false
-    while (!exit) {
+    let localExit = false
+    while (!localExit) {
         displayAdminMenu()
         const choice = await askQuestion("Enter your choice: ")
 
@@ -243,31 +243,36 @@ async function runAdminMenu() {
             case "7":
                 console.log("👋 Admin logging out...")
                 currentUser = null
-                exit = true
+                localExit = true
                 break
             default: console.log("❌ Invalid choice! Please try again.")
         }
     }
+    // Function ends - returns to handleLogin() which returns to main()
 }
 
 // -------------------------------------------------------
-// MAIN MENU HANDLER
+// MAIN ENTRY POINT
 // -------------------------------------------------------
 async function main() {
     console.log("\nInitializing database...")
 
     await initDB()
 
-    let exit = false
-
-    while (!exit) {
+    // Show main menu until user chooses login
+    let exitApp = false
+    while (!exitApp) {
         displayMainMenu()
         const choice = await askQuestion("Enter your choice: ")
 
         switch (choice) {
             case "1": await viewAllBlogs(); break
             case "2": await handleRegister(); break
-            case "3": await handleLogin(); break
+            case "3":
+                await handleLogin()
+                // After handleLogin returns (after logout),
+                // the while loop continues and shows main menu again
+                break
             default: console.log("❌ Invalid choice! Please select 1-3.")
         }
     }
@@ -277,9 +282,10 @@ async function main() {
 }
 
 // -------------------------------------------------------
-// RUN APPLICATION
+// Run Application
 // -------------------------------------------------------
 main().catch((error) => {
     console.error("❌ Fatal error:", error)
+    rl.close()
     process.exit(1)
 })
