@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("User Login", async ({ page }) => {
+test.only("User Login", async ({ page }) => {
   await page.goto("http://localhost:3000");
   await page.getByRole("textbox", { name: "you@example.com" }).fill("admin@test.com");
   await page.getByRole("textbox", { name: "Enter password" }).fill("1234");
@@ -56,7 +56,7 @@ test("NextJS Date Time Picker", async ({ page }) =>{
   
 })
 
-test.only("Readonly Date Field", async ({ page }) =>{
+test("Readonly Date Field", async ({ page }) =>{
   await page.goto("http://localhost:3000/dashboard/practice-components");
   const readOnlyElem = await page.locator("[readonly]").elementHandle();
   await readOnlyElem.evaluate((el:HTMLInputElement) =>{
@@ -64,5 +64,16 @@ test.only("Readonly Date Field", async ({ page }) =>{
     el.value = '2024-01-05';
     el.dispatchEvent(new Event('chnage',{bubbles:true}));
   })
+  let value = await readOnlyElem.getProperty('value');
+  expect (await value.jsonValue()).toBe('2024-01-05');
   await page.pause();
+})
+
+test.only("Set react datetime", async ({ page }) =>{
+    await page.goto("http://localhost:3000/dashboard/practice-components");
+    let reactDatePicker = await page.getByPlaceholder("Select Date");
+    await reactDatePicker.click();
+    await reactDatePicker.press('Control+a');
+    await reactDatePicker.fill('10/05/2026');
+    await page.keyboard.press("Enter");
 })
