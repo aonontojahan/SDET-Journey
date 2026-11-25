@@ -113,11 +113,6 @@ export const Blog = sequelize.define("Blog", {
 })
 
 // Define Relationship: One-to-Many
-// One User can have many Blogs
-// Each Blog belongs to one User
-// The userId field in Blogs table references the User's id
-
-// Set up associations after models are defined
 const setupAssociations = () => {
     Blog.associate = (models) => {
         Blog.belongsTo(models.User, {
