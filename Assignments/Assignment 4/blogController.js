@@ -84,7 +84,7 @@ export async function searchBlog(searchTerm) {
         blogs.forEach((blog, index) => {
             console.log(`\n${index + 1}. ID: ${blog.id}`)
             console.log(`   Title: "${blog.blogTitle}"`)
-            console.log(`   User: ${blog.User ? blog.User.firstName + " " + blog.User.lastName : "Unknown"}`)
+            console.log(`   User: ${blog.user ? blog.user.firstName + " " + blog.user.lastName : "Unknown"}`)
             console.log(`   Category: ${blog.category || "Uncategorized"}`)
         })
 
