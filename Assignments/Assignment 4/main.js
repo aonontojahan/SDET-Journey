@@ -293,7 +293,8 @@ async function runAdminMenu() {
             case "3": await searchBlogFunction(); break
             case "4":
                 const userId = await askQuestion("Enter user ID to update status: ")
-                const isActive = (await askQuestion("Set to true (active) or false (deactivate)? ").toLowerCase()) === "true"
+                const answer = await askQuestion("Set to true (active) or false (deactivate)? ")
+                const isActive = answer.toLowerCase() === "true"
                 await updateUserStatus(Number(userId), isActive)
                 break
             case "5":

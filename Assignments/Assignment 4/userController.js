@@ -65,6 +65,16 @@ export async function updateUserStatus(userId, isActive) {
             console.log("❌ User not found with ID:", userId)
             return 0
         }
+        // Check if user is already in the requested state
+        const currentlyActive = user.isActive
+        if (isActive && currentlyActive) {
+            console.log(`ℹ️ User ${userId} is already activated`)
+            return 1
+        }
+        if (!isActive && !currentlyActive) {
+            console.log(`ℹ️ User ${userId} is already deactivated`)
+            return 1
+        }
         user.isActive = isActive
         await user.save()
         const status = isActive ? "activated" : "deactivated"
