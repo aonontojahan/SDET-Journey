@@ -1,6 +1,4 @@
 // Blogging Platform - CRUD Console Application
-// Main entry point for the console-based blogging platform
-// Features: User registration, login, blog CRUD, admin controls
 
 import { initDB, closeDB } from "./db.js"
 import { Blog, User } from "./db.js"
@@ -21,18 +19,14 @@ import {
 
 let currentUser = null
 
-// -------------------------------------------------------
 // Readline Interface (ES Module compatible)
-// -------------------------------------------------------
 const { createInterface } = await import("node:readline")
 const rl = createInterface({
     input: process.stdin,
     output: process.stdout
 })
 
-// -------------------------------------------------------
 // Question Function - Reads single line input
-// -------------------------------------------------------
 function askQuestion(promptText) {
     return new Promise((resolve) => {
         rl.question(promptText, (answer) => {
@@ -41,9 +35,7 @@ function askQuestion(promptText) {
     })
 }
 
-// -------------------------------------------------------
 // Display Functions
-// -------------------------------------------------------
 
 function displayMainMenu() {
     console.log(`
@@ -57,7 +49,7 @@ Please select an option:
 3. Login
 
 Enter your choice (1-3):
-========================================
+----------------------------------------
 `)
 }
 
@@ -78,7 +70,7 @@ Please select an option:
 6. Logout
 
 Enter your choice (1-6):
-========================================
+----------------------------------------
 `)
 }
 
@@ -100,32 +92,35 @@ Please select an option:
 7. Admin Logout
 
 Enter your choice (1-7):
-========================================
+----------------------------------------
 `)
 }
 
-// -------------------------------------------------------
 // Menu Functions
-// -------------------------------------------------------
-
 async function viewAllBlogs() {
     console.log("\n--- Viewing All Blogs ---")
     try {
         const blogs = await Blog.findAll({
             order: [["createAt", "DESC"]],
-            include: [{ model: User, as: "user", attributes: ["firstName", "lastName"] }]
+            include: [{ model: User, as: "user" }]
         })
         if (blogs.length === 0) {
             console.log("📝 No blogs found in the system.")
         } else {
             console.log(`\n=== ALL BLOGS (${blogs.length}) ===`)
-            blogs.forEach((blog, index) => {
-                console.log(`\n${index + 1}. ID: ${blog.id}`)
+            // Use for...of to properly handle async/await
+            let index = 1
+            for (const blog of blogs) {
+                console.log(`\n${index}. ID: ${blog.id}`)
                 console.log(`   Title: "${blog.blogTitle}"`)
-                console.log(`   User: ${blog.User ? blog.User.firstName + " " + blog.User.lastName : "Unknown"}`)
+                // Fetch user name using getUser() method
+                const user = await blog.getUser()
+                const userName = user ? user.firstName + " " + user.lastName : "Unknown"
+                console.log(`   User: ${userName}`)
                 console.log(`   Category: ${blog.category || "Uncategorized"}`)
                 console.log(`   Created: ${blog.createAt}`)
-            })
+                index++
+            }
         }
     } catch (error) {
         console.error("❌ Error fetching blogs:", error.message)
@@ -133,6 +128,7 @@ async function viewAllBlogs() {
     console.log()
 }
 
+// User registration - registers a new user and auto-logs them in
 async function handleRegister() {
     console.log("\n--- User Registration ---")
     const firstName = await askQuestion("Enter your first name: ")
@@ -145,8 +141,19 @@ async function handleRegister() {
         return
     }
 
-    await userRegistration(firstName, lastName, email, password)
-    console.log()
+    const newUser = await userRegistration(firstName, lastName, email, password)
+    if (newUser) {
+        console.log("\n✅ Registration successful!\n")
+        // Auto-login with the just-registered credentials
+        currentUser = await userLogin(email, password)
+        if (currentUser) {
+            if (currentUser.role === "admin") {
+                await runAdminMenu()
+            } else {
+                await runUserMenu()
+            }
+        }
+    }
 }
 
 // User login - shows dashboard menu in a loop until logout
@@ -180,6 +187,13 @@ async function createNewBlog() {
     const blogTitle = await askQuestion("Enter blog title: ")
     const blogContent = await askQuestion("Enter blog content: ")
     const category = await askQuestion("Enter category (optional): ") || "Uncategorized"
+
+    // Check if title or content is empty or only whitespace
+    if (!blogTitle || !blogContent.trim()) {
+        console.log("❌ Title and content are required to create a blog!")
+        return
+    }
+
     await createBlog(currentUser.id, blogTitle, blogContent, category)
 }
 
@@ -193,24 +207,35 @@ async function searchBlogFunction() {
 async function updateBlogFunction() {
     const updateId = await askQuestion("Enter blog ID to update: ")
     const newTitle = await askQuestion("Enter new title (or press Enter to skip): ")
-    const newContent = await askQuestion("Enter new content (or press Enter to skip): ")
+    const newContent = await askQuestion("Enter new content (or Enter to skip): ")
     const newCategory = await askQuestion("Enter new category (or press Enter to skip): ")
     await updateBlog(Number(updateId), {
         blogTitle: newTitle || undefined,
         blog: newContent || undefined,
         category: newCategory || undefined
     })
+    // Check if any actual updates were made
+    const blog = await Blog.findByPk(updateId)
+    if (blog.blogTitle !== newTitle || blog.blog !== newContent || blog.category !== newCategory) {
+        console.log(`\n🔗 Blog ID ${updateId} has been updated successfully\n`)
+    } else {
+        console.log(`\nℹ️ No changes were made to Blog ID ${updateId}\n`)
+    }
 }
 
 // Delete a blog
 async function deleteBlogFunction() {
     const delId = await askQuestion("Enter blog ID to delete: ")
-    await deleteBlog(Number(delId))
+    const delBlog = await Blog.findByPk(Number(delId))
+    if (delBlog) {
+        await deleteBlog(Number(delId))
+        console.log(`\n✅ Blog ID ${delId} has been deleted successfully\n`)
+    } else {
+        console.log(`\n❌ Blog ID ${delId} not found! No blog was deleted.\n`)
+    }
 }
 
-// -------------------------------------------------------
 // User Menu Loop (returns to main menu on logout)
-// -------------------------------------------------------
 async function runUserMenu() {
     let localExit = false
     while (!localExit) {
@@ -234,9 +259,7 @@ async function runUserMenu() {
     // Function ends - returns to handleLogin() which returns to main()
 }
 
-// -------------------------------------------------------
 // Admin Menu Loop (returns to main menu on logout)
-// -------------------------------------------------------
 async function runAdminMenu() {
     let localExit = false
     while (!localExit) {
@@ -245,7 +268,28 @@ async function runAdminMenu() {
 
         switch (choice) {
             case "1": await getAllUsers(); break
-            case "2": console.log("✅ View All Blogs accessed by admin\n"); break
+            case "2": // View all blogs from all users
+                try {
+                    const blogs = await Blog.findAll({
+                        order: [["createAt", "DESC"]],
+                        include: [{ model: User, as: "user", attributes: ["firstName", "lastName"] }]
+                    })
+                    console.log("\n=== ALL BLOGS FROM ALL USERS ===")
+                    if (blogs.length === 0) {
+                        console.log("📝 No blogs found in the system.")
+                    } else {
+                        blogs.forEach((blog, index) => {
+                            console.log(`\n${index + 1}. ID: ${blog.id}`)
+                            console.log(`   Title: "${blog.blogTitle}"`)
+                            console.log(`   User: ${blog.User ? blog.User.firstName + " " + blog.User.lastName : "Unknown"}`)
+                            console.log(`   Category: ${blog.category || "Uncategorized"}`)
+                            console.log(`   Created: ${blog.createAt}`)
+                        })
+                    }
+                } catch (error) {
+                    console.error("❌ Error fetching blogs:", error.message)
+                }
+                break
             case "3": await searchBlogFunction(); break
             case "4":
                 const userId = await askQuestion("Enter user ID to update status: ")
@@ -271,9 +315,7 @@ async function runAdminMenu() {
     // Function ends - returns to handleLogin() which returns to main()
 }
 
-// -------------------------------------------------------
 // MAIN ENTRY POINT
-// -------------------------------------------------------
 async function main() {
     console.log("\nInitializing database...")
 
@@ -301,9 +343,8 @@ async function main() {
     console.log("\n👋 Thank you for using Blogging Platform! Goodbye!\n")
 }
 
-// -------------------------------------------------------
+
 // Run Application
-// -------------------------------------------------------
 main().catch((error) => {
     console.error("❌ Fatal error:", error)
     rl.close()

@@ -1,11 +1,7 @@
 // User Authentication & CRUD Operations
-// Handles user registration, login, and user management
-// Imports User model from db.js for database operations
 import { User } from "./db.js"
 
 // Register a new user
-// Creates a new user account with the provided details
-// Returns the created user object, or null if user already exists
 export async function userRegistration(firstName, lastName, email, password) {
     try {
         const existing = await User.findOne({ where: { email } })
@@ -23,9 +19,6 @@ export async function userRegistration(firstName, lastName, email, password) {
 }
 
 // Login a user
-// Authenticates a user with email and password
-// Returns the user object if successful, null if login fails
-// Also checks if user account is deactivated
 export async function userLogin(email, password) {
     try {
         const user = await User.findOne({ where: { email, password } })
@@ -46,9 +39,6 @@ export async function userLogin(email, password) {
 }
 
 // Get all users
-// Retrieves a list of all users in the system (admin feature)
-// Excludes password from the returned data for security
-// Returns an array of user objects
 export async function getAllUsers() {
     try {
         const users = await User.findAll({ attributes: { exclude: ["password"] } })
@@ -68,9 +58,6 @@ export async function getAllUsers() {
 }
 
 // Update user status
-// Changes a user's active/deactive status
-// Used by admin to activate or deactivate user accounts
-// Returns the number of rows updated
 export async function updateUserStatus(userId, isActive) {
     try {
         const user = await User.findByPk(userId)
@@ -93,9 +80,6 @@ export async function updateUserStatus(userId, isActive) {
 }
 
 // Delete user
-// Removes a user from the system (admin feature)
-// Also removes associated blogs (or handles cascade deletion)
-// Returns true if deletion was successful
 export async function deleteUser(userId) {
     try {
         const user = await User.findByPk(userId)
