@@ -44,7 +44,7 @@ function displayMainMenu() {
 ========================================
 
 Please select an option:
-1. allBlog (View All Blogs)
+1. View All Blogs
 2. Register
 3. Login
 
@@ -288,8 +288,8 @@ async function runAdminMenu() {
 Logged in as Admin: ${currentUser ? currentUser.firstName + " " + currentUser.lastName : "Admin"}
 
 Please select an option:
-1. allUsers (View All Users)
-2. allUsersBlog (View All Blogs)
+1. View All Users
+2. View All Blogs
 3. Search Blog (by ID/Title)
 4. Update User Status
 5. Delete User
