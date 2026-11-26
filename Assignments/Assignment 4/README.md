@@ -146,8 +146,8 @@ node main.js
 | `password` | STRING | Not Null | Login credential |
 | `isActive` | BOOLEAN | Default: true | Account status (true = active, false = deactivated) |
 | `role` | STRING | Default: "user" | User role (admin/user) |
-| `createdAt` | DATE | - | Account creation timestamp |
-| `updatedAt` | DATE | - | Last update timestamp |
+| `createAt` | DATE | - | Account creation timestamp |
+| `updateAt` | DATE | - | Last update timestamp |
 
 ### Blogs Table
 
@@ -158,8 +158,8 @@ node main.js
 | `blogTitle` | STRING | Not Null | Post title |
 | `blog` | TEXT | - | Post content |
 | `category` | STRING | - | Post category |
-| `createdAt` | DATE | - | Creation timestamp |
-| `updatedAt` | DATE | - | Last update timestamp |
+| `createAt` | DATE | - | Creation timestamp |
+| `updateAt` | DATE | - | Last update timestamp |
 
 ### Relationships
 
