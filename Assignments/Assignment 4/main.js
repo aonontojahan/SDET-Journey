@@ -44,7 +44,7 @@ function displayMainMenu() {
 ========================================
 
 Please select an option:
-1. View All Blogs
+1. allBlog (View All Blogs)
 2. Register
 3. Login
 
@@ -74,31 +74,9 @@ Enter your choice (1-6):
 `)
 }
 
-function displayAdminMenu() {
-    console.log(`
-========================================
-   ADMIN DASHBOARD
-========================================
-
-Logged in as Admin: ${currentUser ? currentUser.firstName + " " + currentUser.lastName : "Admin"}
-
-Please select an option:
-1. View All Users
-2. View All Blogs
-3. Search Blog (by ID/Title)
-4. Update User Status
-5. Delete User
-6. Delete Blog
-7. Admin Logout
-
-Enter your choice (1-7):
-----------------------------------------
-`)
-}
-
 // Menu Functions
-async function viewAllBlogs() {
-    console.log("\n--- Viewing All Blogs ---")
+async function allBlog() {
+    console.log("\n--- allBlog: View All Blogs ---")
     try {
         const blogs = await Blog.findAll({
             order: [["createAt", "DESC"]],
@@ -175,8 +153,8 @@ async function handleLogin() {
     // After logout, return to main menu
 }
 
-// View user's blogs
-async function viewUserBlogs() {
+// View user's blogs (View Your Blogs)
+async function viewYourBlogs() {
     console.log("\n--- Your Blogs ---")
     await getUserBlogs(currentUser.id)
 }
@@ -205,30 +183,68 @@ async function searchBlogFunction() {
 
 // Update a blog
 async function updateBlogFunction() {
-    const updateId = await askQuestion("Enter blog ID to update: ")
+    const updateIdInput = await askQuestion("Enter blog ID to update: ")
+    const updateId = Number(updateIdInput)
+
+    // Validate blog ID
+    if (!updateIdInput.trim() || isNaN(updateId) || updateId <= 0) {
+        console.log("❌ Invalid blog ID! Please enter a valid number.")
+        return
+    }
+
+    // Check if blog exists first
+    const existingBlog = await Blog.findByPk(updateId)
+    if (!existingBlog) {
+        console.log(`\n❌ Blog ID ${updateId} not found!`)
+        return
+    }
+
     const newTitle = await askQuestion("Enter new title (or press Enter to skip): ")
     const newContent = await askQuestion("Enter new content (or Enter to skip): ")
     const newCategory = await askQuestion("Enter new category (or press Enter to skip): ")
-    await updateBlog(Number(updateId), {
-        blogTitle: newTitle || undefined,
-        blog: newContent || undefined,
-        category: newCategory || undefined
+
+    // Check if any actual updates provided
+    const hasUpdates = newTitle.trim() || newContent.trim() || newCategory.trim()
+    if (!hasUpdates) {
+        console.log("\nℹ️ No changes provided. Update cancelled.")
+        return
+    }
+
+    await updateBlog(updateId, {
+        blogTitle: newTitle.trim() || undefined,
+        blog: newContent.trim() || undefined,
+        category: newCategory.trim() || undefined
     })
-    // Check if any actual updates were made
-    const blog = await Blog.findByPk(updateId)
-    if (blog.blogTitle !== newTitle || blog.blog !== newContent || blog.category !== newCategory) {
-        console.log(`\n🔗 Blog ID ${updateId} has been updated successfully\n`)
-    } else {
-        console.log(`\nℹ️ No changes were made to Blog ID ${updateId}\n`)
+
+    // Verify update by fetching fresh data
+    const updatedBlog = await Blog.findByPk(updateId)
+    if (updatedBlog) {
+        const titleChanged = newTitle.trim() && updatedBlog.blogTitle !== existingBlog.blogTitle
+        const contentChanged = newContent.trim() && updatedBlog.blog !== existingBlog.blog
+        const categoryChanged = newCategory.trim() && updatedBlog.category !== existingBlog.category
+
+        if (titleChanged || contentChanged || categoryChanged) {
+            console.log(`\n🔗 Blog ID ${updateId} has been updated successfully\n`)
+        } else {
+            console.log(`\nℹ️ No changes were made to Blog ID ${updateId}\n`)
+        }
     }
 }
 
 // Delete a blog
 async function deleteBlogFunction() {
-    const delId = await askQuestion("Enter blog ID to delete: ")
-    const delBlog = await Blog.findByPk(Number(delId))
+    const delIdInput = await askQuestion("Enter blog ID to delete: ")
+    const delId = Number(delIdInput)
+
+    // Validate blog ID
+    if (!delIdInput.trim() || isNaN(delId) || delId <= 0) {
+        console.log("❌ Invalid blog ID! Please enter a valid number.")
+        return
+    }
+
+    const delBlog = await Blog.findByPk(delId)
     if (delBlog) {
-        await deleteBlog(Number(delId))
+        await deleteBlog(delId)
         console.log(`\n✅ Blog ID ${delId} has been deleted successfully\n`)
     } else {
         console.log(`\n❌ Blog ID ${delId} not found! No blog was deleted.\n`)
@@ -243,7 +259,7 @@ async function runUserMenu() {
         const choice = await askQuestion("Enter your choice: ")
 
         switch (choice) {
-            case "1": await viewUserBlogs(); break
+            case "1": await viewYourBlogs(); break
             case "2": await createNewBlog(); break
             case "3": await searchBlogFunction(); break
             case "4": await updateBlogFunction(); break
@@ -263,50 +279,67 @@ async function runUserMenu() {
 async function runAdminMenu() {
     let localExit = false
     while (!localExit) {
-        displayAdminMenu()
-        const choice = await askQuestion("Enter your choice: ")
+        // Process choice first, then display menu at the end of the iteration
+        const choice = await askQuestion(`
+========================================
+   ADMIN DASHBOARD
+========================================
+
+Logged in as Admin: ${currentUser ? currentUser.firstName + " " + currentUser.lastName : "Admin"}
+
+Please select an option:
+1. allUsers (View All Users)
+2. allUsersBlog (View All Blogs)
+3. Search Blog (by ID/Title)
+4. Update User Status
+5. Delete User
+6. Delete Blog
+7. Admin Logout
+
+Enter your choice (1-7):
+----------------------------------------
+`)
 
         switch (choice) {
-            case "1": await getAllUsers(); break
-            case "2": // View all blogs from all users
-                try {
-                    const blogs = await Blog.findAll({
-                        order: [["createAt", "DESC"]],
-                        include: [{ model: User, as: "user", attributes: ["firstName", "lastName"] }]
-                    })
-                    console.log("\n=== ALL BLOGS FROM ALL USERS ===")
-                    if (blogs.length === 0) {
-                        console.log("📝 No blogs found in the system.")
-                    } else {
-                        blogs.forEach((blog, index) => {
-                            console.log(`\n${index + 1}. ID: ${blog.id}`)
-                            console.log(`   Title: "${blog.blogTitle}"`)
-                            // Use blog.user (lowercase) matching the association alias, or use blog.getUser()
-                            const user = blog.user ? blog.user.firstName + " " + blog.user.lastName : "Unknown"
-                            console.log(`   User: ${user}`)
-                            console.log(`   Category: ${blog.category || "Uncategorized"}`)
-                            console.log(`   Created: ${blog.createAt}`)
-                        })
-                    }
-                } catch (error) {
-                    console.error("❌ Error fetching blogs:", error.message)
-                }
+            case "1": await allUsers(); break
+            case "2": // allUsersBlog - View all blogs from all users
+                await allUsersBlog()
+                // After displaying blogs, the while loop will naturally
+                // re-display the admin dashboard at the start of the next iteration
                 break
             case "3": await searchBlogFunction(); break
-            case "4":
-                const userId = await askQuestion("Enter user ID to update status: ")
+            case "4": {
+                const userIdInput = await askQuestion("Enter user ID to update status: ")
+                const userId = Number(userIdInput)
+                if (!userIdInput.trim() || isNaN(userId) || userId <= 0) {
+                    console.log("❌ Invalid user ID! Please enter a valid number.")
+                    break
+                }
                 const answer = await askQuestion("Set to true (active) or false (deactivate)? ")
                 const isActive = answer.toLowerCase() === "true"
-                await updateUserStatus(Number(userId), isActive)
+                await updateUserStatus(userId, isActive)
                 break
-            case "5":
-                const delUserId = await askQuestion("Enter user ID to delete: ")
-                await deleteUser(Number(delUserId))
+            }
+            case "5": {
+                const delUserIdInput = await askQuestion("Enter user ID to delete: ")
+                const delUserId = Number(delUserIdInput)
+                if (!delUserIdInput.trim() || isNaN(delUserId) || delUserId <= 0) {
+                    console.log("❌ Invalid user ID! Please enter a valid number.")
+                    break
+                }
+                await deleteUser(delUserId)
                 break
-            case "6":
-                const delBlogId = await askQuestion("Enter blog ID to delete: ")
-                await deleteBlog(Number(delBlogId))
+            }
+            case "6": {
+                const delBlogIdInput = await askQuestion("Enter blog ID to delete: ")
+                const delBlogId = Number(delBlogIdInput)
+                if (!delBlogIdInput.trim() || isNaN(delBlogId) || delBlogId <= 0) {
+                    console.log("❌ Invalid blog ID! Please enter a valid number.")
+                    break
+                }
+                await deleteBlog(delBlogId)
                 break
+            }
             case "7":
                 console.log("👋 Admin logging out...")
                 currentUser = null
@@ -316,6 +349,53 @@ async function runAdminMenu() {
         }
     }
     // Function ends - returns to handleLogin() which returns to main()
+}
+
+// allUsers function - View All Users
+async function allUsers() {
+    try {
+        const users = await User.findAll({ attributes: { exclude: ["password"] } })
+        console.log("\n=== ALL USERS ===")
+        console.table(users.map(u => ({
+            ID: u.id,
+            Name: `${u.firstName} ${u.lastName}`,
+            Email: u.email,
+            Role: u.role,
+            IsActive: u.isActive ? "Active" : "Deactivated"
+        })))
+        return users
+    } catch (error) {
+        console.error("❌ Error fetching users:", error.message)
+        throw error
+    }
+}
+
+// allUsersBlog function - View all blogs from all users
+async function allUsersBlog() {
+    try {
+        const blogs = await Blog.findAll({
+            order: [["createAt", "DESC"]],
+            include: [{ model: User, as: "user", attributes: ["firstName", "lastName"] }]
+        })
+        console.log("\n=== ALL BLOGS FROM ALL USERS ===")
+        if (blogs.length === 0) {
+            console.log("📝 No blogs found in the system.")
+        } else {
+            blogs.forEach((blog, index) => {
+                console.log(`\n${index + 1}. ID: ${blog.id}`)
+                console.log(`   Title: "${blog.blogTitle}"`)
+                // Use blog.user (lowercase) matching the association alias, or use blog.getUser()
+                const user = blog.user ? blog.user.firstName + " " + blog.user.lastName : "Unknown"
+                console.log(`   User: ${user}`)
+                console.log(`   Category: ${blog.category || "Uncategorized"}`)
+                console.log(`   Created: ${blog.createAt}`)
+            })
+        }
+        return blogs
+    } catch (error) {
+        console.error("❌ Error fetching blogs:", error.message)
+        throw error
+    }
 }
 
 // MAIN ENTRY POINT
@@ -331,7 +411,7 @@ async function main() {
         const choice = await askQuestion("Enter your choice: ")
 
         switch (choice) {
-            case "1": await viewAllBlogs(); break
+            case "1": await allBlog(); break
             case "2": await handleRegister(); break
             case "3":
                 await handleLogin()
@@ -347,7 +427,6 @@ async function main() {
 }
 
 
-// Run Application
 main().catch((error) => {
     console.error("❌ Fatal error:", error)
     rl.close()

@@ -1,41 +1,40 @@
-# Blogging Platform
+# Blogging Platform - CRUD Console Application
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/run_on_Node.js-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Sequelize](https://img.shields.io/badge/ORM-Sequelize-0E3C54?style=flat-square)](https://sequelize.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-00000f?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
 
-A console-based CRUD application for managing a blogging platform with user authentication, featuring role-based access control (admin/user), database operations via Sequelize ORM, and comprehensive admin dashboard functionality.
-
----
-
-## 📖 Table of Contents
+## 📋 Table of Contents
 
 1. [Project Overview](#project-overview)
 2. [Prerequisites](#prerequisites)
 3. [Installation](#installation)
 4. [Configuration](#configuration)
 5. [Database Schema](#database-schema)
-6. [Available Scripts](#available-scripts)
+6. [Usage](#usage)
 7. [Features](#features)
-8. [Usage](#usage)
+8. [Admin Commands](#admin-commands)
 9. [Error Handling](#error-handling)
 10. [Project Structure](#project-structure)
 11. [Contributing](#contributing)
 12. [License](#license)
+13. [Demo](#demo)
 
 ---
 
-## 📋 Project Overview
+## 📝 Project Overview
 
-The **Blogging Platform** is a Node.js console application that provides a complete content management system for blog posts and user management. Built with **Sequelize ORM** and **MySQL**, it demonstrates practical CRUD operations, authentication flows, and admin-level user management.
+The **Blogging Platform** is a Node.js console (CLI) application that provides a complete content management system for blog posts and user management. Built with **Node.js**, **Sequelize ORM**, and **MySQL**, it demonstrates practical CRUD operations, authentication flows, and admin-level user management with role-based access control.
 
 ### Key Capabilities
 
-- **User Authentication**: Registration and login with role-based access
+- **User Authentication**: Registration and login with role-based access (admin/user roles)
 - **Blog CRUD**: Create, read, update, and delete blog posts
-- **User Management**: Activate/deactivate users, view all users
+- **User Management**: View all users, update user status (activate/deactivate), delete users
 - **Search Functionality**: Search blogs by ID or title
-- **Status Tracking**: User activation status affects login capability
+- **Status Tracking**: User activation status affects login capability (deactivated users cannot login)
+- **One-to-Many Relationship**: One user can create multiple blogs; each blog belongs to one user
 
 ---
 
@@ -44,6 +43,7 @@ The **Blogging Platform** is a Node.js console application that provides a compl
 - **Node.js** (v14 or higher)
 - **MySQL** database server (v5.7 or higher)
 - **npm** (comes with Node.js)
+- **Git** (for version control)
 
 ---
 
@@ -88,6 +88,48 @@ On first run, this will:
 - Authenticate the database connection
 - Create the `users` and `blogs` tables
 - Establish model associations
+- Seed default data if applicable
+
+---
+
+## 🚀 Usage
+
+### Running the Application
+
+```bash
+node main.js
+```
+
+### Main Menu
+
+```
+1. View All Blogs
+2. Register
+3. Login
+```
+
+### Admin Dashboard (after login as admin)
+
+```
+1. View All Users
+2. View All Blogs
+3. Search Blog (by ID/Title)
+4. Update User Status
+5. Delete User
+6. Delete Blog
+7. Admin Logout
+```
+
+### User Dashboard (after login as user)
+
+```
+1. View Your Blogs
+2. Create Blog
+3. Search Blog (by ID/Title)
+4. Update Blog
+5. Delete Blog
+6. Logout
+```
 
 ---
 
@@ -101,8 +143,8 @@ On first run, this will:
 | `firstName` | STRING | Not Null | User's first name |
 | `lastName` | STRING | - | User's last name |
 | `email` | STRING | Unique, Not Null | Login identifier |
-| `password` | STRING | Not Null | Hashed password |
-| `isActive` | BOOLEAN | Default: true | Account status |
+| `password` | STRING | Not Null | Login credential |
+| `isActive` | BOOLEAN | Default: true | Account status (true = active, false = deactivated) |
 | `role` | STRING | Default: "user" | User role (admin/user) |
 | `createdAt` | DATE | - | Account creation timestamp |
 | `updatedAt` | DATE | - | Last update timestamp |
@@ -133,7 +175,7 @@ On first run, this will:
 
 | Feature | Description |
 |---------|-------------|
-| **Registration** | Create account with name, email, and password |
+| **Registration** | Create account with first name, last name, email, and password |
 | **Login** | Authenticate with credentials |
 | **Dashboard** | View own blogs and create new posts |
 | **Blog Management** | Create, update, delete own blogs |
@@ -143,7 +185,7 @@ On first run, this will:
 
 | Feature | Description |
 |---------|-------------|
-| **User Management** | View all users, update status (activate/deactivate) |
+| **User Management** | View all users, update status (activate/deactivate), delete users |
 | **Blog Management** | View all blogs from all users |
 | **User Deletion** | Remove users from the system |
 | **Status Awareness** | Admins warned if user already in requested state |
@@ -157,7 +199,7 @@ On first run, this will:
 
 ---
 
-## 🚀 Usage
+## 📖 Usage Examples
 
 ### Running the Application
 
@@ -165,36 +207,56 @@ On first run, this will:
 node main.js
 ```
 
-### Main Menu
+### Main Menu Options
 
 ```
-1. View All Blogs
-2. Register
-3. Login
+1. View All Blogs - View all blogs in the system (no login required)
+2. Register - Create a new user account
+3. Login - Authenticate to access user/admin dashboard
 ```
 
-### Admin Dashboard (after login as admin)
+### Admin Dashboard Options
 
 ```
-1. View All Users
-2. View All Blogs
-3. Search Blog
-4. Update User Status
-5. Delete User
-6. Delete Blog
-7. Admin Logout
+1. View All Users - See complete list of all users in the system
+2. View All Blogs - See all blogs from all users
+3. Search Blog (by ID/Title) - Find a blog by ID or title search
+4. Update User Status - Activate or deactivate a user by ID
+5. Delete User - Remove a user from the system
+6. Delete Blog - Remove a blog by ID
+7. Admin Logout - Return to main menu
 ```
 
-### User Dashboard (after login as user)
+### User Dashboard Options
 
 ```
-1. View Your Blogs
-2. Create Blog
-3. Search Blog
-4. Update Blog
-5. Delete Blog
-6. Logout
+1. View Your Blogs - View blogs created by the logged-in user
+2. Create Blog - Create a new blog post
+3. Search Blog (by ID/Title) - Find a blog by ID or title
+4. Update Blog - Update a blog by ID (title, content, category)
+5. Delete Blog - Remove a blog by ID
+6. Logout - Return to main menu
 ```
+
+### User Login/Logout Behavior
+
+- **Login**: Use email and password credentials
+- **Deactivated Users**: Cannot login - system displays "User is deactivated"
+- **Session**: User stays logged in until explicitly logs out
+- **Admin Role**: Automatically redirected to admin dashboard on login
+
+---
+
+## 🎥 Demo
+
+**Video Demonstration**: https://drive.google.com/file/d/1ysyHVZfalCWFSUdvFian14Cy0DULQxNT/view?usp=sharing
+
+> **Video Walkthrough**: This video demonstrates the complete project including:
+> - User registration and login
+> - Creating and managing blogs
+> - Admin features: viewing all users, all blogs, updating user status
+> - Search functionality
+> - User deactivation and its effect on login
 
 ---
 
@@ -203,10 +265,11 @@ node main.js
 The application implements comprehensive error handling:
 
 - **Invalid inputs** display appropriate error messages
-- **Deactivated users** cannot login (clear message displayed)
-- **User existence checks** before operations
+- **Deactivated users** cannot login (clear message: "User is deactivated")
+- **User existence checks** before operations (e.g., "User not found")
 - **Database operation feedback** (success/failure messages)
 - **State-aware operations** (admin notified if user already activated/deactivated)
+- **Input validation** for all user inputs
 
 ---
 
@@ -247,20 +310,33 @@ Assignments/Assignment 4/
 
 ---
 
-## 📁 Project Demonstration with Voice Explanation
-
-https://drive.google.com/file/d/1ysyHVZfalCWFSUdvFian14Cy0DULQxNT/view?usp=sharing
-
----
-
 ## 📜 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
+
 *Generated with ❤️ using Node.js and Sequelize*
 
+**Copyright © 2026 aonontojahan.vercel.app** — All rights reserved.
 
 ---
 
-**Copyright © 2026 aonontojahan.vercel.app** — All rights reserved.
+## 📹 Demo Video Guide
+
+If the video link doesn't open, here's what the demonstration covers:
+
+1. **0:00-0:30** - Application startup and main menu
+2. **0:30-1:00** - User registration process
+3. **1:00-1:30** - User login and dashboard
+4. **1:30-2:00** - Creating a new blog post
+5. **2:00-2:30** - Viewing user's blogs
+6. **2:30-3:00** - Admin login and admin dashboard
+7. **3:00-3:30** - Viewing all users and all blogs
+8. **3:30-4:00** - Searching blogs by ID/Title
+9. **4:00-4:30** - Updating user status (activate/deactivate)
+10. **4:30-5:00** - Deleting users and blogs
+11. **5:00-5:30** - User deactivation login block demonstration
+12. **5:30-6:00** - Summary of all features
+
+---
