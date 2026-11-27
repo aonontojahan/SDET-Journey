@@ -39,7 +39,10 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'],
-        storageState:'auth.json'
+        storageState:'auth.json',
+        launchOptions:{
+          slowMo:500
+        }
        },
     },
 
