@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { faker } from "@faker-js/faker";
+
 
 test.skip("User Login", async ({ page }) => {
   await page.goto('/');
@@ -11,13 +13,13 @@ test.skip("User Login", async ({ page }) => {
 });
 
 test ("User Regestration", async( {page} )=>{
+    
     await page.goto("/dashboard/add-user");
-    await page.getByPlaceholder("John", {exact:true}).fill("Test");
-    await page.getByPlaceholder("Doe").fill("User");
+    await page.getByPlaceholder("John", { exact: true }).fill(faker.person.firstName());
+    await page.getByPlaceholder("Doe").fill(faker.person.lastName());
+    await page.getByPlaceholder("john@example.com").fill(faker.internet.email());
+    await page.getByPlaceholder("01500000000").fill('01' + faker.string.numeric(9));
 
-    await page.getByPlaceholder("john@example.com").fill("testuser@test.com");
-    await page.getByPlaceholder("01500000000").fill("01723740704");
-    await page.waitForTimeout(1000);
     let cbBloodGroup = await page.getByRole('combobox').first();
     await cbBloodGroup.press("ArrowDown");
     await page.getByPlaceholder("Create a password").fill('1234');
@@ -32,7 +34,6 @@ test ("User Regestration", async( {page} )=>{
     await page.locator('#genderMale').check();
     await page.locator("[type = checkbox]").check();
     await page.locator("#photoInput").setInputFiles("resources/aonontojahan'soptimize.png");
-
-
+    await page.getByRole("button",{name:"Create USer"}).click();
     await page.pause();
 })
