@@ -18,7 +18,12 @@ Welcome to my **SDET Journey** repository. This repository documents a structure
 - [📌 Projects & Assignments Breakdown](#-projects--assignments-breakdown)
   - [Assignment 1: Manual Testing & SQA Documentation](#assignment-1-manual-testing--sqa-documentation)
   - [Assignment 2: Complete REST API Test Automation](#assignment-2-complete-rest-api-test-automation)
+  - [Assignment 3: Mocha + Chai dMoney Integration Testing](#assignment-3-mocha--chai-dmoney-integration-testing)
+  - [Assignment 4: Blogging Platform CRUD Console App](#assignment-4-blogging-platform-crud-console-app)
   - [Practice 1: API Automation Fundamentals](#practice-1-api-automation-fundamentals)
+  - [Practice 2: Mocha & Chai Testing](#practice-2-mocha--chai-testing)
+  - [Practice 3: Basic CRUD (Node.js + Sequelize + MySQL)](#practice-3-basic-crud-nodejs--sequelize--mysql)
+  - [Practice 4: Playwright UI Automation (POM)](#practice-4-playwright-ui-automation-pom)
   - [Theoretical Topics: SQA Foundations](#theoretical-topics-sqa-foundations)
 - [🛠️ Technology Stack](#️-technology-stack)
 - [🚀 Quick Start & How to Run](#-quick-start--how-to-run)
@@ -60,6 +65,26 @@ SDET-Journey/
 │       ├── package.json                                # Project dependencies & npm scripts
 │       ├── report.js                                   # Newman execution runner
 │       └── README.md                                   # Comprehensive Assignment 2 Guide
+│   │
+│   ├── Assignment 3/                                   # Mocha + Chai dMoney Integration Tests
+│   │   ├── tests/
+│   │   │   └── dmoney.spec.js                          # 32 test cases (21 positive, 11 negative)
+│   │   ├── utils/
+│   │   │   └── randomness.js                           # Random data helpers
+│   │   ├── .env
+│   │   ├── .gitignore
+│   │   ├── package.json
+│   │   └── README.md
+│   │
+│   └── Assignment 4/                                   # Blogging Platform CRUD Console App
+│       ├── db.js                                       # DB config & models (User, Blog)
+│       ├── userController.js                           # Auth & user management
+│       ├── blogController.js                           # Blog CRUD & search
+│       ├── main.js                                     # CLI entry point
+│       ├── .env / .env.example
+│       ├── .gitignore
+│       ├── package.json
+│       └── README.md
 │
 ├── practice1-dmoney-batch-20/                          # API Automation Practice Lab
 │   ├── collection/                                     # User Lifecycle Postman Collection
@@ -69,6 +94,32 @@ SDET-Journey/
 │   ├── .gitignore
 │   ├── package.json
 │   ├── report.js
+│   └── README.md
+│
+├── practice2-mocha-batch-20/                           # Mocha + Chai Test Lab
+│   ├── utils/                                          # calc.js, randomNumber.js
+│   ├── tests/                                          # calc.test.js, dmoney_api.test.js
+│   ├── .env
+│   ├── .mocharc.json
+│   ├── package.json
+│   └── README.md
+│
+├── practice3-basic-CRUD-batch-20/                      # CRUD with Sequelize + MySQL
+│   ├── db.js                                           # DB connection & User model
+│   ├── userController.js                               # CRUD operations
+│   ├── main.js                                         # Entry point
+│   ├── .env / .env.example
+│   ├── package.json
+│   └── README.md
+│
+├── practice4-playwright-batch-20/                      # Playwright UI Automation (POM)
+│   ├── pages/                                          # Page Object Models
+│   │   ├── UserPage.pom.ts
+│   │   └── UserLogin.pom.ts
+│   ├── tests/                                          # Spec files (users, createuser, practice, ...)
+│   ├── resources/                                      # Test data / uploads
+│   ├── playwright.config.ts
+│   ├── package.json
 │   └── README.md
 │
 ├── Theoritical Topics/                                 # Core SQA Study Material
@@ -118,6 +169,29 @@ A production-grade, 30-scenario automated REST API test suite for the **dMoney**
 
 ---
 
+### Assignment 3: Mocha + Chai dMoney Integration Testing
+📁 **Path**: [`Assignments/Assignment 3/`](Assignments/Assignment%203)
+
+End-to-end integration tests for the dMoney REST API using **Mocha**, **Chai**, and **axios**:
+- **32 test cases**: 21 positive-flow + 11 negative-flow.
+- Full business workflow: admin auth → user lifecycle (create/activate) → role logins → OTP verification → transaction chain (deposit → send money → cashout → payment).
+- Negative validations: wrong password, invalid phone/email, negative amounts, self-transfer, invalid OTP.
+- Fresh JWT token fetched at runtime; dev OTP `0000` used for verification.
+
+---
+
+### Assignment 4: Blogging Platform CRUD Console App
+📁 **Path**: [`Assignments/Assignment 4/`](Assignments/Assignment%204)
+
+A Node.js CLI content management system built with **Node.js**, **Sequelize ORM**, and **MySQL**:
+- **User authentication** with role-based access (admin/user).
+- **Blog CRUD**: create, read, update, delete posts; search by ID/title.
+- **Admin management**: view all users/blogs, activate/deactivate users, delete users/blogs.
+- **One-to-Many** relationship: one user → many blogs.
+- Status-based access control (deactivated users cannot login).
+
+---
+
 ### Practice 1: API Automation Fundamentals
 📁 **Path**: [`practice1-dmoney-batch-20/`](practice1-dmoney-batch-20)
 
@@ -125,6 +199,38 @@ Hands-on foundational API testing lab covering:
 - Admin authentication and JWT token handling.
 - User management lifecycle: Create User, Search User, Status Updates (Suspend/Activate), and User Deletion.
 - Chaining environment variables and automated report generation via Newman.
+
+---
+
+### Practice 2: Mocha & Chai Testing
+📁 **Path**: [`practice2-mocha-batch-20/`](practice2-mocha-batch-20)
+
+A Mocha + Chai test project covering both unit and API integration testing:
+- **Unit tests** for math utilities (`calc.test.js` — sum, subtraction).
+- **API integration tests** for the dMoney platform (`dmoney_api.test.js` — admin login, create customer, search user by ID).
+- Uses **ESM modules**, `dotenv` for env vars, `axios` for HTTP, and `faker` for test data.
+
+---
+
+### Practice 3: Basic CRUD (Node.js + Sequelize + MySQL)
+📁 **Path**: [`practice3-basic-CRUD-batch-20/`](practice3-basic-CRUD-batch-20)
+
+A beginner-friendly CRUD project demonstrating database operations:
+- **Node.js (ES Modules)** + **Sequelize ORM** + **MySQL**.
+- `User` model with validation (unique email/phone).
+- Controller functions: `userRegistration`, `userList`, `userSearch` (Op.or / Op.like), `userUpdate`, `userDelete`.
+- Lifecycle management via `initDB()` / `closeDB()`.
+
+---
+
+### Practice 4: Playwright UI Automation (POM)
+📁 **Path**: [`practice4-playwright-batch-20/`](practice4-playwright-batch-20)
+
+End-to-end UI automation using **Playwright** with the **Page Object Model** pattern (TypeScript):
+- **Page Objects**: `UserPage.pom.ts` (user registration form) and `UserLogin.pom.ts` (login flow).
+- **Test specs**: `users.spec.ts`, `createuser.spec.ts`, `practice.spec.ts`, `browserFixture.spec.ts`.
+- **Faker** integration for dynamic test data (names, email, phone).
+- Covers locators, form fill, date pickers, file uploads, storage state (auth.json), and serial test execution.
 
 ---
 
@@ -149,6 +255,11 @@ A collection of foundational study resources covering ISTQB-aligned software tes
 | **HTML Reporting** | [newman-reporter-htmlextra](https://www.npmjs.com/package/newman-reporter-htmlextra) | Dashboard-style HTML test execution reports |
 | **Runtime & Package Management**| [Node.js](https://nodejs.org/) & [npm](https://www.npmjs.com/) | Script execution runtime and dependency manager |
 | **Scripting Language** | [JavaScript (ES6+)](https://developer.mozilla.org/) | Pre-request logic, Chai assertion scripts, custom runners |
+| **JS Test Runner** | [Mocha](https://mochajs.org/) + [Chai](https://www.chaijs.com/) | Unit & API integration testing (Practice 2) |
+| **UI Automation** | [Playwright](https://playwright.dev/) | End-to-end browser UI testing with POM (Practice 4) |
+| **Language (UI Tests)** | [TypeScript](https://www.typescriptlang.org/) | Type-safe Playwright page objects & specs |
+| **ORM & Database** | [Sequelize](https://sequelize.org/) + [MySQL](https://www.mysql.com/) | CRUD operations & data modeling (Practice 3) |
+| **Test Data** | [Faker.js](https://fakerjs.dev/) | Dynamic fake data generation |
 | **Test Design & Documentation** | MS Excel, MS Word | Test case design, BVA/EP matrices, defect tracking, AC |
 | **Version Control** | [Git](https://git-scm.com/) & [GitHub](https://github.com/) | Source code management, repository hygiene, and safety |
 
@@ -181,6 +292,46 @@ npm test
 cd "../../practice1-dmoney-batch-20"
 npm install
 node report.js
+```
+
+### 4. Run Assignment 3 (Mocha + Chai)
+```bash
+cd "../Assignments/Assignment 3"
+npm install
+npm test
+```
+
+### 5. Run Assignment 4 (Blogging Platform CRUD)
+```bash
+cd "Assignment 4"
+npm install
+# Configure .env with MySQL credentials, then:
+node main.js
+```
+
+### 6. Run Practice 2 (Mocha + Chai)
+```bash
+cd "../../practice2-mocha-batch-20"
+npm install
+npm test
+```
+
+### 7. Run Practice 3 (CRUD with Sequelize + MySQL)
+```bash
+cd "../practice3-basic-CRUD-batch-20"
+npm install
+# Configure .env with MySQL credentials, then:
+node main.js
+```
+
+### 8. Run Practice 4 (Playwright UI Tests)
+```bash
+cd "../practice4-playwright-batch-20"
+npm install
+npx playwright install
+npx playwright test
+# Or a single spec:
+npx playwright test createuser.spec.ts
 ```
 
 ---
