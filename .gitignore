@@ -21,6 +21,10 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Kilo & Claude
+.kilo
+.claude
+
 # Playwright
 /test-results/
 /playwright-report/
