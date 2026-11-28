@@ -7,7 +7,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Tests Passed](https://img.shields.io/badge/Tests-100%25%20Passing-brightgreen?style=flat)]()
 
-Welcome to my **SDET Journey** repository. This repository documents a structured, end-to-end pathway toward mastering **Software Quality Assurance (SQA)** and **Software Development Engineering in Test (SDET)**. It demonstrates practical competency across manual test engineering, business requirement analysis, defect reporting, and automated REST API testing using industry-standard tools and frameworks.
+Welcome to my **SDET Journey** repository. This repository documents a structured, end-to-end pathway toward mastering **Software Quality Assurance (SQA)** and **Software Development Engineering in Test (SDET)**. It demonstrates practical competency across manual test engineering, business requirement analysis, defect reporting, automated REST API testing (Postman/Newman), unit & integration testing (Mocha/Chai), database CRUD (Sequelize/MySQL), and end-to-end UI automation (Playwright + POM) using industry-standard tools and frameworks.
 
 ---
 
@@ -50,9 +50,9 @@ SDET-Journey/
 ├── Assignments/
 │   ├── Assignment 1/                                   # Manual Testing & Documentation
 │   │   ├── Task 1. acceptance critera on dmoney.docx  # Feature Acceptance Criteria
-│   │   ├── Task 2. test cases with priority.xlsx       # Prioritized Test Cases
+│   │   ├── Task 2. test cases with priority for the given scenario.xlsx  # Prioritized Test Cases
 │   │   ├── Task 3. test cases for cash in feature.xlsx # BVA/EP Cash-In Test Scenarios
-│   │   ├── Task 4. agent commission structure.docx    # Business Rules & Commission Specs
+│   │   ├── Task 4. documentation on agent commission structure on dmoney .docx  # Commission Specs
 │   │   ├── Task 5. bugs from dmoney application.xlsx   # Bug Tracking & Defect Reports
 │   │   └── Task 6. theoritical questions.docx          # SQA & STLC Theoretical Concepts
 │   │
@@ -118,9 +118,10 @@ SDET-Journey/
 │   │   └── UserLogin.pom.ts
 │   ├── tests/                                          # Spec files (users, createuser, practice, ...)
 │   ├── resources/                                      # Test data / uploads
+│   ├── auth.json                                       # Saved storage state (git-ignored)
 │   ├── playwright.config.ts
-│   ├── package.json
-│   └── README.md
+│   ├── .gitignore
+│   └── package.json
 │
 ├── Theoritical Topics/                                 # Core SQA Study Material
 │   ├── Chapter 1.pdf                                   # Fundamentals of Testing
@@ -270,6 +271,9 @@ A collection of foundational study resources covering ISTQB-aligned software tes
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v16.0 or higher)
 - [Git](https://git-scm.com/)
+- **MySQL Server** (for Assignment 4 & Practice 3)
+- **dMoney API server** running at `http://localhost:5000` (for Assignment 3 & Practice 2)
+- **Playwright browsers** (for Practice 4 — installed via `npx playwright install`)
 
 ### 1. Clone the Repository
 ```bash
@@ -277,61 +281,71 @@ git clone https://github.com/aonontojahan/SDET-Journey.git
 cd SDET-Journey
 ```
 
-### 2. Run Assignment 2 (Complete 30-Scenario Automation)
+> Every command below is **self-contained** and assumes you start from the repository root (`SDET-Journey/`). Each step `cd`s into its own project folder.
+
+### 2. Assignment 1 — Manual Testing & SQA Documentation
+📁 `Assignments/Assignment 1/`
+No code to run — open the `.docx` / `.xlsx` files (Task 1–6) with Microsoft Office or Google Docs/Sheets to review the manual test artifacts.
+
+### 3. Assignment 2 — Complete 30-Scenario API Automation
 ```bash
 cd "Assignments/Assignment 2"
 npm install
 node report.js
-# Or run with npm script:
-npm test
+# Or: npm test
 ```
-*After the execution completes, open `Reports/report.html` in your browser to view the interactive test report.*
+*Open `Reports/report.html` in your browser to view the interactive Newman dashboard.*
 
-### 3. Run Practice 1 Suite
+### 4. Assignment 3 — Mocha + Chai dMoney Integration Tests
+> Requires the dMoney API server running at `http://localhost:5000`.
 ```bash
-cd "../../practice1-dmoney-batch-20"
+cd "Assignments/Assignment 3"
+npm install
+npm test
+# Runs 32 test cases: npx mocha tests/dmoney.spec.js --timeout 10000
+```
+
+### 5. Assignment 4 — Blogging Platform CRUD Console App
+> Requires MySQL. Configure `.env` (copy from `.env.example`) with your DB credentials first.
+```bash
+cd "Assignments/Assignment 4"
+npm install
+node main.js
+```
+
+### 6. Practice 1 — API Automation Fundamentals
+```bash
+cd "practice1-dmoney-batch-20"
 npm install
 node report.js
 ```
+*Open `Reports/report.html` to view the report.*
 
-### 4. Run Assignment 3 (Mocha + Chai)
+### 7. Practice 2 — Mocha + Chai Testing
+> Requires the dMoney API server at `http://localhost:5000` and a configured `.env`.
 ```bash
-cd "../Assignments/Assignment 3"
+cd "practice2-mocha-batch-20"
 npm install
 npm test
+# Single file: npx mocha tests/calc.test.js
 ```
 
-### 5. Run Assignment 4 (Blogging Platform CRUD)
+### 8. Practice 3 — Basic CRUD (Sequelize + MySQL)
+> Requires MySQL. Configure `.env` with your DB credentials first.
 ```bash
-cd "Assignment 4"
+cd "practice3-basic-CRUD-batch-20"
 npm install
-# Configure .env with MySQL credentials, then:
 node main.js
 ```
 
-### 6. Run Practice 2 (Mocha + Chai)
+### 9. Practice 4 — Playwright UI Automation (POM)
 ```bash
-cd "../../practice2-mocha-batch-20"
-npm install
-npm test
-```
-
-### 7. Run Practice 3 (CRUD with Sequelize + MySQL)
-```bash
-cd "../practice3-basic-CRUD-batch-20"
-npm install
-# Configure .env with MySQL credentials, then:
-node main.js
-```
-
-### 8. Run Practice 4 (Playwright UI Tests)
-```bash
-cd "../practice4-playwright-batch-20"
+cd "practice4-playwright-batch-20"
 npm install
 npx playwright install
 npx playwright test
-# Or a single spec:
-npx playwright test createuser.spec.ts
+# Single spec:  npx playwright test createuser.spec.ts
+# Headed mode:   npx playwright test --headed
 ```
 
 ---
